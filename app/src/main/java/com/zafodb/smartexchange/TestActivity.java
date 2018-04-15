@@ -59,7 +59,19 @@ public class TestActivity extends Activity {
 
             }
         });
+
+        Button newFilterButton = findViewById(R.id.button2);
+
+        newFilterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                appendToTextBox(web3jwrapper.createNewFilter());
+            }
+        });
     }
+
+
+
 
     private void appendToTextBox(String textToAppend){
         String text = outputText.getText().toString() + "\n" + textToAppend;

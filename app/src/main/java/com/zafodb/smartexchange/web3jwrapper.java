@@ -9,13 +9,18 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.Web3jFactory;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthBlockNumber;
+import org.web3j.protocol.core.methods.request.EthFilter;
 import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
+import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
+import org.web3j.protocol.core.methods.response.EthLog;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.http.HttpService;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class web3jwrapper {
 
@@ -147,6 +152,57 @@ public class web3jwrapper {
             e.printStackTrace();
             return "Failed to invoke price update";
         }
+    }
+
+    static String createNewFilter(){
+        EthFilter myFilter = new EthFilter(DefaultBlockParameterName.EARLIEST, DefaultBlockParameterName.LATEST, "0xdDb813cC954994180edcF50aa9b3532e428Ac35E");
+
+//        web3j.ethNewFilter(myFilter)
+
+        String output = "";
+
+        try {
+            EthLog myLogs = web3j.ethGetLogs(myFilter).sendAsync().get();
+
+            List results = myLogs.getLogs();
+
+            List<String> transactions = new ArrayList<String>();
+
+
+            for (Object result:results){
+                EthLog.LogResult res = (EthLog.LogResult) result;
+
+                EthLog.LogObject myObj = (EthLog.LogObject) res.get();
+
+                transactions.add(myObj.getTransactionHash());
+
+            }
+
+
+
+            for (String txHash: transactions){
+                EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(txHash).sendAsync().get();
+
+                TransactionReceipt txRecpt = transactionReceipt.getTransactionReceipt();
+
+                List txLogs = txRecpt.getLogs();
+
+                for (Object myLog : txLogs){
+                    org.web3j.protocol.core.methods.response.Log oneLog = (org.web3j.protocol.core.methods.response.Log) myLog;
+
+                    output = output + " " + oneLog.getData();
+                }
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            return "failed to get logs";
+
+        }
+
+
+        return output;
     }
 
     static BigInteger getNonce(String address) {
