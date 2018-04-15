@@ -38,7 +38,8 @@ public class TestActivity extends Activity {
         createWalletBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                appendToTextBox(web3jwrapper.getClientVerison());
+                appendToTextBox(web3jwrapper.invokeDieselPriceUpdate(getApplicationContext()));
+
 
 //                web3jwrapper.createWallet(getApplicationContext());
 
