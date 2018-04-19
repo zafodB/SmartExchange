@@ -6,13 +6,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.web3j.protocol.core.methods.response.Web3ClientVersion;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
 public class TestActivity extends Activity {
 
     TextView outputText;
@@ -29,7 +22,7 @@ public class TestActivity extends Activity {
             @Override
             public void onClick(View view) {
 
-                appendToTextBox(String.valueOf(web3jwrapper.deployReadyContract(getApplicationContext())));
+                appendToTextBox(String.valueOf(web3jwrapper.deployReadyContractTest(getApplicationContext())));
             }
         });
 

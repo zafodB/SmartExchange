@@ -4,12 +4,14 @@ import android.content.Context;
 import android.util.Log;
 
 import org.web3j.crypto.Credentials;
+import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.Web3jFactory;
 import org.web3j.protocol.core.DefaultBlockParameterName;
-import org.web3j.protocol.core.methods.response.EthBlockNumber;
 import org.web3j.protocol.core.methods.request.EthFilter;
+import org.web3j.protocol.core.methods.response.EthBlockNumber;
+import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
 import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.EthLog;
@@ -54,16 +56,7 @@ public class web3jwrapper {
         }
     }
 
-    static String createWallet(Context context) {
-        try {
-            return WalletUtils.generateNewWalletFile("aaa", context.getFilesDir(), false);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    static String deployReadyContract(Context context) {
+    static String deployReadyContractTest(Context context) {
 
         try {
             Credentials credentials = WalletUtils.loadCredentials("aaa", context.getFilesDir().getPath() + "/" + "UTC--2018-04-14T17-19-50.144--00f42f5423f199998c48a50b9ec39df44e36836b.json");
@@ -119,6 +112,34 @@ public class web3jwrapper {
 //        return "failed";
     }
 
+    static String deployReadyContract(Context context, String walletFilename, BigInteger initialValue, String btcAddress, String ethAddress, String satoshiAmount) {
+
+        try {
+            Credentials credentials = WalletUtils.loadCredentials("aaa", context.getCacheDir().getPath() + "/" + walletFilename);
+
+            initialValue = BigInteger.ZERO;
+            btcAddress = "0";
+            ethAddress = "0";
+            satoshiAmount = "0";
+
+            SmartExchange1 smartExchange1 = SmartExchange1.deploy(
+                    web3j,
+                    credentials,
+                    new BigInteger("30000000000"),
+                    new BigInteger("3000000"),
+                    initialValue,
+                    btcAddress,
+                    ethAddress,
+                    satoshiAmount).sendAsync().get();
+
+            return "success";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "failed";
+        }
+
+    }
+
     static String invokeDieselPriceUpdate(Context context) {
 
         try {
@@ -137,7 +158,7 @@ public class web3jwrapper {
             String out = "";
 
 
-            for (Object l:eventValues){
+            for (Object l : eventValues) {
 
                 DieselPrice.NewOraclizeQueryEventResponse response = (DieselPrice.NewOraclizeQueryEventResponse) l;
 
@@ -154,7 +175,7 @@ public class web3jwrapper {
         }
     }
 
-    static String createNewFilter(){
+    static String createNewFilter() {
         EthFilter myFilter = new EthFilter(DefaultBlockParameterName.EARLIEST, DefaultBlockParameterName.LATEST, "0xdDb813cC954994180edcF50aa9b3532e428Ac35E");
 
 //        web3j.ethNewFilter(myFilter)
@@ -169,7 +190,7 @@ public class web3jwrapper {
             List<String> transactions = new ArrayList<String>();
 
 
-            for (Object result:results){
+            for (Object result : results) {
                 EthLog.LogResult res = (EthLog.LogResult) result;
 
                 EthLog.LogObject myObj = (EthLog.LogObject) res.get();
@@ -179,15 +200,14 @@ public class web3jwrapper {
             }
 
 
-
-            for (String txHash: transactions){
+            for (String txHash : transactions) {
                 EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(txHash).sendAsync().get();
 
                 TransactionReceipt txRecpt = transactionReceipt.getTransactionReceipt();
 
                 List txLogs = txRecpt.getLogs();
 
-                for (Object myLog : txLogs){
+                for (Object myLog : txLogs) {
                     org.web3j.protocol.core.methods.response.Log oneLog = (org.web3j.protocol.core.methods.response.Log) myLog;
 
                     output = output + " " + oneLog.getData();
@@ -203,6 +223,59 @@ public class web3jwrapper {
 
 
         return output;
+    }
+
+    static String createNewWallet(Context context) {
+//        TODO Remove temporary password.
+        try {
+            return WalletUtils.generateNewWalletFile("aaa", context.getCacheDir(), false);
+        } catch (Exception e) {
+            Log.e("FILIP", "Couldn't create new wallet because of exception.");
+
+            e.printStackTrace();
+
+            return null;
+        }
+    }
+
+    static String getWalletAddress(String walletFilename, Context context) {
+        try {
+            Credentials creds = WalletUtils.loadCredentials("aaa", context.getCacheDir().getPath() + "/" + walletFilename);
+
+            return creds.getAddress();
+        } catch (Exception e) {
+            Log.e("FILIP", "Couldn't fetch wallet address because of exception.");
+            e.printStackTrace();
+
+            return null;
+        }
+    }
+
+    static BigInteger getAddressBalance(String address) {
+
+//        TEMPORARY arrangement
+        String adr = "0x967587b42d9425fa2c8d01de0dc8da00eb246804";
+
+        try {
+            EthGetBalance ethGetBalance = web3j.ethGetBalance(adr, DefaultBlockParameterName.LATEST).sendAsync().get();
+
+            return ethGetBalance.getBalance();
+
+        } catch (Exception e) {
+            Log.e("FILIP", "Couldn't fetch wallet address because of exception.");
+            e.printStackTrace();
+
+            return null;
+        }
+
+    }
+
+    static String ethBalanceToString(BigInteger balance) {
+
+        BigInteger divisor = new BigInteger("1000000000000000");
+        balance = balance.divide(divisor);
+
+        return "0." + balance.divide(divisor).toString() + " kETH";
     }
 
     static BigInteger getNonce(String address) {
@@ -222,4 +295,6 @@ public class web3jwrapper {
             return null;
         }
     }
+
+
 }
