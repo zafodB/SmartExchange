@@ -18,6 +18,7 @@ public class BitcoinjWrapper {
             return false;
         } catch (AddressFormatException ae){
             ae.printStackTrace();
+//            TODO nothing
             return false;
         }
     }
