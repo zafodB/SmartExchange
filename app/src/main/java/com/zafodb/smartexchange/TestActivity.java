@@ -22,7 +22,7 @@ public class TestActivity extends Activity {
             @Override
             public void onClick(View view) {
 
-                appendToTextBox(String.valueOf(web3jwrapper.deployReadyContractTest(getApplicationContext())));
+                appendToTextBox(String.valueOf(Web3jwrapper.deployReadyContractTest(getApplicationContext())));
             }
         });
 
@@ -31,10 +31,10 @@ public class TestActivity extends Activity {
         createWalletBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                appendToTextBox(web3jwrapper.invokeDieselPriceUpdate(getApplicationContext()));
+                appendToTextBox(Web3jwrapper.invokeDieselPriceUpdate(getApplicationContext()));
 
 
-//                web3jwrapper.createWallet(getApplicationContext());
+//                Web3jwrapper.createWallet(getApplicationContext());
 
 //                try {
 //
@@ -58,7 +58,7 @@ public class TestActivity extends Activity {
         newFilterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                appendToTextBox(web3jwrapper.createNewFilter());
+                appendToTextBox(Web3jwrapper.createNewFilter());
             }
         });
     }

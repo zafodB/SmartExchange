@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class web3jwrapper {
+public class Web3jwrapper {
 
     private final static Web3j web3j;
 

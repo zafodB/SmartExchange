@@ -3,12 +3,16 @@ package com.zafodb.smartexchange.UI;
 import android.content.Context;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextClock;
 import android.widget.TextView;
 
+import com.zafodb.smartexchange.BitcoinjWrapper;
 import com.zafodb.smartexchange.MainActivity;
 import com.zafodb.smartexchange.R;
 
@@ -31,7 +35,7 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
 
     TextView ethBalance;
     ImageButton refreshBalanceButton;
-
+    TextView btcAddress;
 
     private WalletPick.OnFragmentInteractionListener mListener;
 
@@ -73,14 +77,24 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
         ethBalance = view.findViewById(R.id.ethBallanceCurrent);
         refreshBalance();
 
-        refreshBalanceButton = view.findViewById(R.id.refreshBalanceButton);
+        btcAddress = view.findViewById(R.id.btcAddressInputDeploy);
 
+        refreshBalanceButton = view.findViewById(R.id.refreshBalanceButton);
         refreshBalanceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 refreshBalance();
             }
         });
+
+        Button validateButton = view.findViewById(R.id.validateDeployBtn);
+        validateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                validateAddress(btcAddress.getText().toString());
+            }
+        });
+
         return view;
     }
 
@@ -118,6 +132,17 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
             ethBalance.setText("Error");
         } else {
             ethBalance.setText(bal);
+        }
+    }
+
+    boolean validateAddress(String address){
+        if(BitcoinjWrapper.validateAddress(address)){
+            Log.e("FILIP", "Address is VALID.");
+            return true;
+        } else{
+            Log.e("FILIP", "Address is invalid.");
+//            TODO show user sorta warning or whatever
+            return false;
         }
     }
 }
