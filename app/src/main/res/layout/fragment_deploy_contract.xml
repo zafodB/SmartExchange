@@ -54,16 +54,17 @@
         </LinearLayout>
 
         <EditText
-            android:id="@+id/btcAddressInputDeploy"
+            android:id="@+id/btcAddressInput"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="90dp"
+            android:layout_marginTop="24dp"
             android:ems="10"
             android:hint="Bitcoin address to monitor"
             android:inputType="textPersonName"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+            app:layout_constraintTop_toBottomOf="@+id/btcAmountInput" />
 
         <android.support.constraint.Guideline
             android:id="@+id/guideline"
@@ -82,19 +83,20 @@
             app:layout_constraintGuide_percent="0.95" />
 
         <EditText
-            android:id="@+id/btcAmountInputDeploy"
+            android:id="@+id/btcAmountInput"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="46dp"
             android:layout_marginTop="24dp"
             android:ems="10"
             android:hint="Amount to monitor (in BTC)"
             android:inputType="numberDecimal"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/btcAddressInputDeploy" />
+            app:layout_constraintTop_toBottomOf="@+id/ethAddressInput" />
 
         <EditText
-            android:id="@+id/ethAddressInputDeploy"
+            android:id="@+id/ethAddressInput"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
@@ -102,8 +104,9 @@
             android:hint="Destination kETH address "
             android:inputType="textPersonName"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/btcAmountInputDeploy" />
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
         <Button
             android:id="@+id/validateDeployBtn"
@@ -114,7 +117,7 @@
             android:textAllCaps="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ethAddressInputDeploy" />
+            app:layout_constraintTop_toBottomOf="@+id/btcAddressInput" />
 
     </android.support.constraint.ConstraintLayout>
 </FrameLayout>

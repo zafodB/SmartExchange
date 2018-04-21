@@ -254,10 +254,11 @@ public class Web3jwrapper {
     static BigInteger getAddressBalance(String address) {
 
 //        TEMPORARY arrangement
-        String adr = "0x967587b42d9425fa2c8d01de0dc8da00eb246804";
+//       address = "0x967587b42d9425fa2c8d01de0dc8da00eb246804";
+         address = "0x00f42f5423f199998c48a50b9ec39df44e36836b";
 
         try {
-            EthGetBalance ethGetBalance = web3j.ethGetBalance(adr, DefaultBlockParameterName.LATEST).sendAsync().get();
+            EthGetBalance ethGetBalance = web3j.ethGetBalance(address, DefaultBlockParameterName.LATEST).sendAsync().get();
 
             return ethGetBalance.getBalance();
 
@@ -296,5 +297,7 @@ public class Web3jwrapper {
         }
     }
 
-
+    public static boolean validateAddress(String address){
+        return WalletUtils.isValidAddress(address);
+    }
 }

@@ -9,12 +9,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.TextClock;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.zafodb.smartexchange.BitcoinjWrapper;
 import com.zafodb.smartexchange.MainActivity;
 import com.zafodb.smartexchange.R;
+import com.zafodb.smartexchange.TradeDeal;
+import com.zafodb.smartexchange.Web3jwrapper;
+
+import java.math.BigInteger;
 
 
 ///**
@@ -36,6 +40,10 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
     TextView ethBalance;
     ImageButton refreshBalanceButton;
     TextView btcAddress;
+    TextView btcAmount;
+    TextView ethAddress;
+
+    private TradeDeal tradeDeal;
 
     private WalletPick.OnFragmentInteractionListener mListener;
 
@@ -57,6 +65,7 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -67,6 +76,8 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
             walletFilename = getArguments().getString(ARG_PARAM1);
             walletAddress = getArguments().getString(ARG_PARAM2);
         }
+
+        tradeDeal = TradeDeal.makeEmptyDeal();
     }
 
     @Override
@@ -77,7 +88,9 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
         ethBalance = view.findViewById(R.id.ethBallanceCurrent);
         refreshBalance();
 
-        btcAddress = view.findViewById(R.id.btcAddressInputDeploy);
+        btcAddress = view.findViewById(R.id.btcAddressInput);
+        btcAmount = view.findViewById(R.id.btcAmountInput);
+        ethAddress = view.findViewById(R.id.ethAddressInput);
 
         refreshBalanceButton = view.findViewById(R.id.refreshBalanceButton);
         refreshBalanceButton.setOnClickListener(new View.OnClickListener() {
@@ -91,7 +104,9 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
         validateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                validateAddress(btcAddress.getText().toString());
+                if (validateInput(btcAddress.getText().toString(), btcAmount.getText().toString(), ethAddress.getText().toString())){
+                    onButtonPressed(MainActivity.FROM_DEPLOY_TO_VALIDATE);
+                } else Log.i("FILIP", "Something wrong");
             }
         });
 
@@ -101,7 +116,7 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(int interactionCase) {
         if (mListener != null) {
-            mListener.onFragmentInteraction(interactionCase);
+            mListener.onFragmentInteraction(interactionCase, tradeDeal);
         }
     }
 
@@ -135,14 +150,24 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
         }
     }
 
-    boolean validateAddress(String address){
-        if(BitcoinjWrapper.validateAddress(address)){
-            Log.e("FILIP", "Address is VALID.");
-            return true;
-        } else{
-            Log.e("FILIP", "Address is invalid.");
-//            TODO show user sorta warning or whatever
+    boolean validateInput(String address, String btcToMonitor, String destEthAddress){
+
+        try {
+            tradeDeal.setDestinationBtcAddress(address);
+            tradeDeal.setAmountSatoshi(btcToMonitor);
+            tradeDeal.setDestinationEthAddress(destEthAddress);
+        } catch (Exception e){
+            Log.e("FILIP", e.getMessage());
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
             return false;
         }
+
+//        TODO Actually check and verify ETH balance
+        tradeDeal.setAmountWei(new BigInteger("123"));
+
+        Log.i("FILIP", "Validation successful.");
+        return true ;
     }
+
+
 }
