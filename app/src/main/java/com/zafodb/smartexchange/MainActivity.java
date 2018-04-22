@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 
+import com.zafodb.smartexchange.UI.ContractSent;
 import com.zafodb.smartexchange.UI.DeployContract;
 import com.zafodb.smartexchange.UI.ValidateDeploy;
 import com.zafodb.smartexchange.UI.WalletPick;
@@ -19,8 +20,28 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
     public static final int FROM_WALLET_PICK_TO_DEPLOY = 564;
     public static final int ETH_BALANCE_UPDATE = 565;
     public static final int FROM_DEPLOY_TO_VALIDATE = 567;
+    public static final int VALIDATION_UNSUCCESSFUL = 568;
+    public static final int VALIDATION_SUCCESSFUL = 589;
 
+    public TradeDeal getTradeDeal() {
+        return tradeDeal;
+    }
 
+    public void setTradeDeal(TradeDeal tradeDeal) {
+        this.tradeDeal = tradeDeal;
+    }
+
+    private TradeDeal tradeDeal;
+
+    public String getTransactionHash() {
+        return transactionHash;
+    }
+
+    public void setTransactionHash(String transactionHash) {
+        this.transactionHash = transactionHash;
+    }
+
+    private String transactionHash;
 
     String walletFileName;
 
@@ -48,15 +69,15 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
             case ETH_BALANCE_UPDATE:
                 updateEthBalance();
                 break;
-        }
-    }
-
-    @Override
-    public void onFragmentInteraction(int interactionCase, TradeDeal dealInstance) {
-        switch (interactionCase) {
-            case FROM_DEPLOY_TO_VALIDATE:
-                openValidationFragment(dealInstance);
+            case VALIDATION_UNSUCCESSFUL:
+                onBackPressed();
                 break;
+            case FROM_DEPLOY_TO_VALIDATE:
+                openValidationFragment(tradeDeal);
+                break;
+            case VALIDATION_SUCCESSFUL:
+                openSentFragment();
+                deployContract();
         }
     }
 
@@ -69,6 +90,7 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
         super.onDestroy();
     }
 
+    //    TODO repeated method 1/3
     void openDeployingFragment() {
         DeployContract newFragment = new DeployContract();
         Bundle args = new Bundle();
@@ -87,6 +109,7 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
         transaction.commit();
     }
 
+    //    TODO repeated method 2/3
     void openValidationFragment(TradeDeal tradeDeal){
         ValidateDeploy newFragment = new ValidateDeploy();
         Bundle args = new Bundle();
@@ -96,8 +119,17 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
 
         transaction.replace(R.id.fragment_container, newFragment, "validateFragTag");
-        transaction.addToBackStack(null);
+//        transaction.addToBackStack(null);
 
+        transaction.commit();
+    }
+
+//    TODO repeated method 3/3
+    void openSentFragment(){
+        ContractSent newFragment = new ContractSent();
+
+        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, newFragment, "sentFragTag");
         transaction.commit();
     }
 
@@ -124,17 +156,36 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
 
                 PushDataToFragment pusher = (PushDataToFragment) getFragmentManager().findFragmentByTag("deployFragTag");
 
-                if (bal != null) {
-                    pusher.pushBalance(Web3jwrapper.ethBalanceToString(bal));
-                } else {
-                    pusher.pushBalance("Error");
-                }
+                pusher.pushBalance(bal);
+
             }
         }).start();
     }
 
     public interface PushDataToFragment {
-        void pushBalance(String bal);
+        void pushBalance(BigInteger bal);
+
+        void pushTxHash(String txHash);
+    }
+
+    void deployContract(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                setTransactionHash(Web3jwrapper.deployContract(getApplicationContext(), walletFileName, tradeDeal));
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        PushDataToFragment pusher = (PushDataToFragment) getFragmentManager().findFragmentByTag("sentFragTag");
+
+                        pusher.pushTxHash(getTransactionHash());
+                    }
+                });
+
+            }
+        }).start();
+
     }
 
 //    METHOD USED ONLY DURING DEVELOPEMENT

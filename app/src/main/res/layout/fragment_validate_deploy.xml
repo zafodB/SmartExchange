@@ -70,7 +70,7 @@
             android:text="with condition, that"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/confEthAddr" />
+            app:layout_constraintTop_toBottomOf="@+id/confGasPrice" />
 
         <TextView
             android:id="@+id/confBtcAmount"
@@ -108,28 +108,89 @@
             app:layout_constraintTop_toBottomOf="@+id/staticTextView07"
             tools:text="2N6PnCNgWbqG2ggxRsYkdSzsvkUCZ4vnKJZ" />
 
+        <TextView
+            android:id="@+id/staticTextView08"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="16dp"
+            android:text="Gas Price"
+            app:layout_constraintEnd_toEndOf="@id/guideline3"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/confEthAddr" />
+
+        <TextView
+            android:id="@+id/confGasPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:text="30 GWei"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@id/guideline3"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/staticTextView08"
+            tools:text="30 GWei" />
+
+        <TextView
+            android:id="@+id/staticTextView09"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text="Gas Limit"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/guideline3"
+            app:layout_constraintTop_toBottomOf="@+id/confEthAddr" />
+
+        <TextView
+            android:id="@+id/confGasLimit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:text="30 000 000"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/guideline3"
+            app:layout_constraintTop_toBottomOf="@+id/staticTextView08"
+            tools:text="30 000 000" />
+
         <Button
             android:id="@+id/validateBtnTrue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="70dp"
+            android:layout_marginEnd="16dp"
             android:layout_marginTop="24dp"
             android:background="@android:color/holo_blue_light"
             android:text="YES"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/guideline3"
             app:layout_constraintTop_toBottomOf="@+id/confBtcAddr" />
 
         <Button
             android:id="@+id/validateBtnFalse"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="70dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="24dp"
             android:padding="5dp"
             android:background="@android:color/holo_red_light"
-            android:text="No, take me back"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:text="NO"
+            app:layout_constraintStart_toStartOf="@id/guideline3"
             app:layout_constraintTop_toBottomOf="@+id/confBtcAddr" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
 
     </android.support.constraint.ConstraintLayout>
 </FrameLayout>

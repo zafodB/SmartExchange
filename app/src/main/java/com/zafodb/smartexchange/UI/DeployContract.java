@@ -112,6 +112,11 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
             @Override
             public void onClick(View view) {
                 if (validateInput(btcAddress.getText().toString(), btcAmount.getText().toString(), ethAddress.getText().toString())) {
+
+                    MainActivity activity = (MainActivity) getActivity();
+                    activity.setTradeDeal(tradeDeal);
+
+
                     onButtonPressed(MainActivity.FROM_DEPLOY_TO_VALIDATE);
                 } else Log.i("FILIP", "Something wrong");
             }
@@ -133,14 +138,12 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
             }
         });
 
-
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(int interactionCase) {
         if (mListener != null) {
-            mListener.onFragmentInteraction(interactionCase, tradeDeal);
+            mListener.onFragmentInteraction(interactionCase);
         }
     }
 
@@ -166,12 +169,18 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
     }
 
     @Override
-    public void pushBalance(String bal) {
+    public void pushBalance(BigInteger bal) {
         if (bal == null) {
             ethBalance.setText("Error");
         } else {
-            ethBalance.setText(bal);
+            tradeDeal.setAmountWei(bal);
+            ethBalance.setText(Web3jwrapper.ethBalanceToString(bal));
         }
+    }
+
+    @Override
+    public void pushTxHash(String txHash) {
+
     }
 
     boolean validateInput(String address, String btcToMonitor, String destEthAddress) {
@@ -188,7 +197,9 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
         }
 
 //        TODO Actually check and verify ETH balance
-        tradeDeal.setAmountWei(new BigInteger("123"));
+        if(tradeDeal.getAmountWei() == null){
+            return false;
+        }
 
         Log.i("FILIP", "Validation successful.");
         return true;

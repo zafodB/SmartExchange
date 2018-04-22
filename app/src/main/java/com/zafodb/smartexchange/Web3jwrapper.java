@@ -19,7 +19,9 @@ import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.http.HttpService;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -31,8 +33,11 @@ public class Web3jwrapper {
     static DieselPrice dieselDeploy;
 
     static {
-        web3j = Web3jFactory.build(new HttpService("https://kovan.infura.io/ROrdzkoD6Ua0TH7cyaSh"));
+//        web3j = Web3jFactory.build(new HttpService("https://kovan.infura.io/ROrdzkoD6Ua0TH7cyaSh"));
+//        web3j = Web3jFactory.build(new HttpService("https://kovan.infura.io/IlXkpW67R8mNHL0HDIdO"));
+        web3j = Web3jFactory.build(new HttpService("https://kovan.infura.io/Ceux1wHF7EsQWKb9p8da"));
     }
+
 
     static String getClientVerison() {
 
@@ -117,10 +122,10 @@ public class Web3jwrapper {
         try {
             Credentials credentials = WalletUtils.loadCredentials("aaa", context.getCacheDir().getPath() + "/" + walletFilename);
 
-            initialValue = BigInteger.ZERO;
-            btcAddress = "0";
-            ethAddress = "0";
-            satoshiAmount = "0";
+//            initialValue = BigInteger.ZERO;
+//            btcAddress = "0";
+//            ethAddress = "0";
+//            satoshiAmount = "0";
 
             SmartExchange1 smartExchange1 = SmartExchange1.deploy(
                     web3j,
@@ -130,9 +135,14 @@ public class Web3jwrapper {
                     initialValue,
                     btcAddress,
                     ethAddress,
-                    satoshiAmount).sendAsync().get();
+                    satoshiAmount)
+                    .sendAsync()
+                    .get();
 
-            return "success";
+            TransactionReceipt receipt = smartExchange1.getTransactionReceipt();
+
+            return receipt.getTransactionHash();
+
         } catch (Exception e) {
             e.printStackTrace();
             return "failed";
@@ -140,40 +150,40 @@ public class Web3jwrapper {
 
     }
 
-    static String invokeDieselPriceUpdate(Context context) {
-
-        try {
-            Credentials credentials = WalletUtils.loadCredentials("aaa", context.getFilesDir().getPath() + "/" + "UTC--2018-04-14T17-19-50.144--00f42f5423f199998c48a50b9ec39df44e36836b.json");
-
-            DieselPrice contract = DieselPrice.load(
-                    "0xdDb813cC954994180edcF50aa9b3532e428Ac35E",
-                    web3j,
-                    credentials,
-                    new BigInteger("30000000000"),
-                    new BigInteger("7000000"));
-
-            TransactionReceipt transactionReceipt = contract.update(BigInteger.ZERO).sendAsync().get();
-
-            List eventValues = contract.getNewOraclizeQueryEvents(transactionReceipt);
-            String out = "";
-
-
-            for (Object l : eventValues) {
-
-                DieselPrice.NewOraclizeQueryEventResponse response = (DieselPrice.NewOraclizeQueryEventResponse) l;
-
-                Log.d("FILIP", response.description);
-                out = out + " " + response.description + " " + response.log;
-            }
-
-            return out;
-//            return transactionReceipt.getTransactionHash();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Failed to invoke price update";
-        }
-    }
+//    static String invokeDieselPriceUpdate(Context context) {
+//
+//        try {
+//            Credentials credentials = WalletUtils.loadCredentials("aaa", context.getFilesDir().getPath() + "/" + "UTC--2018-04-14T17-19-50.144--00f42f5423f199998c48a50b9ec39df44e36836b.json");
+//
+//            DieselPrice contract = DieselPrice.load(
+//                    "0xdDb813cC954994180edcF50aa9b3532e428Ac35E",
+//                    web3j,
+//                    credentials,
+//                    new BigInteger("30000000000"),
+//                    new BigInteger("7000000"));
+//
+//            TransactionReceipt transactionReceipt = contract.update(BigInteger.ZERO).sendAsync().get();
+//
+//            List eventValues = contract.getNewOraclizeQueryEvents(transactionReceipt);
+//            String out = "";
+//
+//
+//            for (Object l : eventValues) {
+//
+//                DieselPrice.NewOraclizeQueryEventResponse response = (DieselPrice.NewOraclizeQueryEventResponse) l;
+//
+//                Log.d("FILIP", response.description);
+//                out = out + " " + response.description + " " + response.log;
+//            }
+//
+//            return out;
+////            return transactionReceipt.getTransactionHash();
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return "Failed to invoke price update";
+//        }
+//    }
 
     static String createNewFilter() {
         EthFilter myFilter = new EthFilter(DefaultBlockParameterName.EARLIEST, DefaultBlockParameterName.LATEST, "0xdDb813cC954994180edcF50aa9b3532e428Ac35E");
@@ -251,11 +261,13 @@ public class Web3jwrapper {
         }
     }
 
-    static BigInteger getAddressBalance(String address) {
+    public static BigInteger getAddressBalance(String address) {
 
+//        TODO remove temporary
 //        TEMPORARY arrangement
 //       address = "0x967587b42d9425fa2c8d01de0dc8da00eb246804";
-         address = "0x00f42f5423f199998c48a50b9ec39df44e36836b";
+//       address = "0x00f42f5423f199998c48a50b9ec39df44e36836b";
+        address = "0x12eFbeE9BBE117EEf08190d5e144FD4D168421A5";
 
         try {
             EthGetBalance ethGetBalance = web3j.ethGetBalance(address, DefaultBlockParameterName.LATEST).sendAsync().get();
@@ -271,12 +283,18 @@ public class Web3jwrapper {
 
     }
 
-    static String ethBalanceToString(BigInteger balance) {
+    public static String ethBalanceToString(BigInteger balance) {
 
-        BigInteger divisor = new BigInteger("1000000000000000");
-        balance = balance.divide(divisor);
+        BigDecimal divisor = new BigDecimal("1000000000000000000");
 
-        return "0." + balance.divide(divisor).toString() + " kETH";
+        BigDecimal temp = new BigDecimal(balance);
+
+        temp = temp.divide(divisor);
+        temp = temp.setScale(4, RoundingMode.HALF_DOWN);
+
+        String out = temp.toPlainString();
+
+        return out + " kETH";
     }
 
     static BigInteger getNonce(String address) {
@@ -297,7 +315,14 @@ public class Web3jwrapper {
         }
     }
 
-    public static boolean validateAddress(String address){
+    public static boolean validateAddress(String address) {
         return WalletUtils.isValidAddress(address);
+    }
+
+    public static String deployContract(Context context, String walletFileName, TradeDeal tradeDeal) {
+        BigInteger amountToSend = tradeDeal.getAmountWei().subtract(new BigInteger("90000000000000000"));
+
+        return deployReadyContract(context, walletFileName, amountToSend, tradeDeal.getDestinationBtcAddress(), tradeDeal.getDestinationEthAddress(), tradeDeal.getAmountSatoshi().toString());
+
     }
 }

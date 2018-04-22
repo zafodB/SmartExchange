@@ -4,11 +4,14 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
+import com.zafodb.smartexchange.MainActivity;
 import com.zafodb.smartexchange.R;
 import com.zafodb.smartexchange.TradeDeal;
 
@@ -21,9 +24,7 @@ import com.zafodb.smartexchange.TradeDeal;
  * create an instance of this fragment.
  */
 public class ValidateDeploy extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "trade_deal_instance";
 
     TextView ethAmount;
     TextView btcAddress;
@@ -34,32 +35,22 @@ public class ValidateDeploy extends Fragment {
 
     private WalletPick.OnFragmentInteractionListener mListener;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        MainActivity activity = (MainActivity) getActivity();
+
+        tradeDeal = activity.getTradeDeal();
+    }
+
     public ValidateDeploy() {
         // Required empty public constructor
+
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @return A new instance of fragment ValidateDeploy.
-     */
-    public static ValidateDeploy newInstance(TradeDeal param1) {
-        ValidateDeploy fragment = new ValidateDeploy();
-        Bundle args = new Bundle();
-
-        args.putSerializable(ARG_PARAM1, param1);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            tradeDeal = (TradeDeal) getArguments().getSerializable(ARG_PARAM1);
-        }
+    public static ValidateDeploy newInstance() {
+        return new ValidateDeploy();
     }
 
     @Override
@@ -77,13 +68,29 @@ public class ValidateDeploy extends Fragment {
         btcAddress.setText(tradeDeal.getDestinationBtcAddress());
         ethAddress.setText(tradeDeal.getDestinationEthAddress());
 
+        Button validateTrue = view.findViewById(R.id.validateBtnTrue);
+        validateTrue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onButtonPressed(MainActivity.VALIDATION_SUCCESSFUL);
+            }
+        });
+
+        Button validateFalse = view.findViewById(R.id.validateBtnFalse);
+        validateFalse.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onButtonPressed(MainActivity.VALIDATION_UNSUCCESSFUL);
+            }
+        });
+
         return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
+    public void onButtonPressed(int interactionCase) {
         if (mListener != null) {
-//            mListener.onFragmentInteraction(uri);
+            mListener.onFragmentInteraction(interactionCase);
         }
     }
 

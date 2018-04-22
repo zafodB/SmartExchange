@@ -124,7 +124,6 @@ public class WalletPick extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(int interactionCase);
 
-        void onFragmentInteraction(int interactionCase, TradeDeal dealInstance);
     }
 
 }
