@@ -1,6 +1,8 @@
 package com.zafodb.smartexchange.UI;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.util.Log;
@@ -12,6 +14,11 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.vision.barcode.Barcode;
+import com.zafodb.smartexchange.Barcode.BarcodeReaderActivity;
 import com.zafodb.smartexchange.BitcoinjWrapper;
 import com.zafodb.smartexchange.MainActivity;
 import com.zafodb.smartexchange.R;
@@ -104,11 +111,28 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
         validateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (validateInput(btcAddress.getText().toString(), btcAmount.getText().toString(), ethAddress.getText().toString())){
+                if (validateInput(btcAddress.getText().toString(), btcAmount.getText().toString(), ethAddress.getText().toString())) {
                     onButtonPressed(MainActivity.FROM_DEPLOY_TO_VALIDATE);
                 } else Log.i("FILIP", "Something wrong");
             }
         });
+
+        Button qrEthAddress = view.findViewById(R.id.qrEthAddress);
+        qrEthAddress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openQrReader(BarcodeReaderActivity.READ_ETH_ADDRESS);
+            }
+        });
+
+        Button qrBtcAddress = view.findViewById(R.id.qrBtcAddress);
+        qrBtcAddress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openQrReader(BarcodeReaderActivity.READ_BTC_ADDRESS);
+            }
+        });
+
 
         return view;
     }
@@ -137,27 +161,28 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
         mListener = null;
     }
 
-    void refreshBalance(){
+    void refreshBalance() {
         mListener.onFragmentInteraction(MainActivity.ETH_BALANCE_UPDATE);
     }
 
     @Override
     public void pushBalance(String bal) {
-        if (bal == null){
+        if (bal == null) {
             ethBalance.setText("Error");
         } else {
             ethBalance.setText(bal);
         }
     }
 
-    boolean validateInput(String address, String btcToMonitor, String destEthAddress){
+    boolean validateInput(String address, String btcToMonitor, String destEthAddress) {
 
         try {
             tradeDeal.setDestinationBtcAddress(address);
             tradeDeal.setAmountSatoshi(btcToMonitor);
             tradeDeal.setDestinationEthAddress(destEthAddress);
-        } catch (Exception e){
+        } catch (Exception e) {
             Log.e("FILIP", e.getMessage());
+//            TODO present more user friendly form of error message
             Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
             return false;
         }
@@ -166,7 +191,38 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
         tradeDeal.setAmountWei(new BigInteger("123"));
 
         Log.i("FILIP", "Validation successful.");
-        return true ;
+        return true;
+    }
+
+    void openQrReader(int readerRequest) {
+        if (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getContext()) != ConnectionResult.SUCCESS) {
+            Toast.makeText(getContext(), "Cannot use this feature right now.", Toast.LENGTH_SHORT).show();
+        } else {
+            Intent intent = new Intent(getContext(), BarcodeReaderActivity.class);
+            startActivityForResult(intent, readerRequest);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (resultCode == CommonStatusCodes.SUCCESS && data != null) {
+            Barcode barcode = data.getParcelableExtra(BarcodeReaderActivity.BarcodeObject);
+
+            switch (requestCode) {
+                case BarcodeReaderActivity.READ_BTC_ADDRESS:
+                    btcAddress.setText(barcode.displayValue);
+                    break;
+
+                case BarcodeReaderActivity.READ_ETH_ADDRESS:
+                    ethAddress.setText(barcode.displayValue);
+                    break;
+
+                default:
+                    Log.e("FILIP", "Could not capture QR code." + CommonStatusCodes.getStatusCodeString(resultCode));
+            }
+
+        } else super.onActivityResult(requestCode, resultCode, data);
     }
 
 
