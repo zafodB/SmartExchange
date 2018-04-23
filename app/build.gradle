@@ -30,4 +30,5 @@ dependencies {
     //    implementation 'org.spongycastle.crypto.generators.SCrypt'
     //    implementation 'org.bitcoinj:bitcoinj-tools:0.14.7'
     implementation 'com.madgag.spongycastle:prov:1.58.0.0'
+    implementation 'com.google.android.gms:play-services-vision:15.0.0'
 }

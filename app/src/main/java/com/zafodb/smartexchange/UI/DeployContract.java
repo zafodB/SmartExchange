@@ -1,20 +1,32 @@
 package com.zafodb.smartexchange.UI;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.TextClock;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.zafodb.smartexchange.BitcoinjWrapper;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.vision.barcode.Barcode;
+import com.zafodb.smartexchange.Barcode.BarcodeReaderActivity;
+import com.zafodb.smartexchange.Constants;
 import com.zafodb.smartexchange.MainActivity;
 import com.zafodb.smartexchange.R;
+import com.zafodb.smartexchange.TradeDeal;
+import com.zafodb.smartexchange.ValidationException;
+import com.zafodb.smartexchange.Web3jwrapper;
+
+import java.math.BigInteger;
 
 
 ///**
@@ -25,59 +37,49 @@ import com.zafodb.smartexchange.R;
 // * Use the {@link DeployContract#newInstance} factory method to
 // * create an instance of this fragment.
 // */
-public class DeployContract extends Fragment implements MainActivity.PushDataToFragment {
-    private static final String ARG_PARAM1 = "walletFileName";
-    private static final String ARG_PARAM2 = "walletAddress";
-
-    // TODO: Rename and change types of parameters
-    private String walletFilename;
-    private String walletAddress;
+public class DeployContract extends Fragment implements MainActivity.FragmentUpdateListener {
 
     TextView ethBalance;
     ImageButton refreshBalanceButton;
     TextView btcAddress;
+    TextView btcAmount;
+    TextView ethAddress;
+
+    private TradeDeal tradeDeal;
 
     private WalletPick.OnFragmentInteractionListener mListener;
 
-    public DeployContract() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @return A new instance of fragment DeployContract.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static DeployContract newInstance(String param1, String param2) {
-        DeployContract fragment = new DeployContract();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    public static DeployContract newInstance() {
+        return new DeployContract();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            walletFilename = getArguments().getString(ARG_PARAM1);
-            walletAddress = getArguments().getString(ARG_PARAM2);
+//            walletFilename = getArguments().getString(Constants.DEPLOY_CONTRACT_PARAM1);
+//            walletAddress = getArguments().getString(Constants.DEPLOY_CONTRACT_PARAM2);
         }
+
+        tradeDeal = TradeDeal.makeEmptyDeal();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_deploy_contract, container, false);
+        return inflater.inflate(R.layout.fragment_deploy_contract, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         ethBalance = view.findViewById(R.id.ethBallanceCurrent);
         refreshBalance();
 
-        btcAddress = view.findViewById(R.id.btcAddressInputDeploy);
+        btcAddress = view.findViewById(R.id.inputBtcAddress);
+        btcAmount = view.findViewById(R.id.inputBtcAmount);
+        ethAddress = view.findViewById(R.id.inputEthAddress);
 
         refreshBalanceButton = view.findViewById(R.id.refreshBalanceButton);
         refreshBalanceButton.setOnClickListener(new View.OnClickListener() {
@@ -87,18 +89,37 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
             }
         });
 
-        Button validateButton = view.findViewById(R.id.validateDeployBtn);
+        Button validateButton = view.findViewById(R.id.button_validate_proceed);
         validateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                validateAddress(btcAddress.getText().toString());
+                if (validateInput(btcAddress.getText().toString(), btcAmount.getText().toString(), ethAddress.getText().toString())) {
+
+                    MainActivity activity = (MainActivity) getActivity();
+                    activity.setmTradeDeal(tradeDeal);
+
+                    onButtonPressed(Constants.FROM_DEPLOY_TO_VALIDATE);
+                } else Log.i("FILIP", "Something wrong");
             }
         });
 
-        return view;
+        Button qrEthAddress = view.findViewById(R.id.buttonQrEth);
+        qrEthAddress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openQrReader(BarcodeReaderActivity.READ_ETH_ADDRESS);
+            }
+        });
+
+        Button qrBtcAddress = view.findViewById(R.id.buttonQrBtc);
+        qrBtcAddress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openQrReader(BarcodeReaderActivity.READ_BTC_ADDRESS);
+            }
+        });
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(int interactionCase) {
         if (mListener != null) {
             mListener.onFragmentInteraction(interactionCase);
@@ -122,27 +143,73 @@ public class DeployContract extends Fragment implements MainActivity.PushDataToF
         mListener = null;
     }
 
-    void refreshBalance(){
-        mListener.onFragmentInteraction(MainActivity.ETH_BALANCE_UPDATE);
+    void refreshBalance() {
+        mListener.onFragmentInteraction(Constants.ETH_BALANCE_UPDATE);
     }
 
     @Override
-    public void pushBalance(String bal) {
-        if (bal == null){
+    public void pushUpdate(Bundle args) {
+        BigInteger balance = (BigInteger) args.getSerializable(Constants.BALANCE_AS_BIGINTEGER);
+
+        if (balance == null) {
             ethBalance.setText("Error");
         } else {
-            ethBalance.setText(bal);
+            tradeDeal.setAmountWei(balance);
+            ethBalance.setText(Web3jwrapper.ethBalanceToString(balance, Constants.BALANCE_DISPLAY_DECIMALS));
         }
     }
 
-    boolean validateAddress(String address){
-        if(BitcoinjWrapper.validateAddress(address)){
-            Log.e("FILIP", "Address is VALID.");
-            return true;
-        } else{
-            Log.e("FILIP", "Address is invalid.");
-//            TODO show user sorta warning or whatever
+    boolean validateInput(String address, String btcToMonitor, String destEthAddress) {
+        try {
+            tradeDeal.setDestinationBtcAddress(address);
+            tradeDeal.setAmountSatoshi(btcToMonitor);
+            tradeDeal.setDestinationEthAddress(destEthAddress);
+        } catch (ValidationException e) {
+            Log.e("FILIP", e.getMessage());
+//            TODO present more user friendly form of error message
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
             return false;
         }
+
+//        TODO Actually check and verify ETH balance
+        if(tradeDeal.getAmountWei() == null){
+            return false;
+        }
+
+        Log.i("FILIP", "Validation successful.");
+        return true;
     }
+
+    void openQrReader(int readerRequest) {
+        if (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getContext()) != ConnectionResult.SUCCESS) {
+            Toast.makeText(getContext(), "Cannot use this feature right now.", Toast.LENGTH_SHORT).show();
+        } else {
+            Intent intent = new Intent(getContext(), BarcodeReaderActivity.class);
+            startActivityForResult(intent, readerRequest);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (resultCode == CommonStatusCodes.SUCCESS && data != null) {
+            Barcode barcode = data.getParcelableExtra(BarcodeReaderActivity.BarcodeObject);
+
+            switch (requestCode) {
+                case BarcodeReaderActivity.READ_BTC_ADDRESS:
+                    btcAddress.setText(barcode.displayValue);
+                    break;
+
+                case BarcodeReaderActivity.READ_ETH_ADDRESS:
+                    ethAddress.setText(barcode.displayValue);
+                    break;
+
+                default:
+                    Log.e("FILIP", "Could not capture QR code." + CommonStatusCodes.getStatusCodeString(resultCode));
+            }
+
+        } else super.onActivityResult(requestCode, resultCode, data);
+    }
+
+
 }

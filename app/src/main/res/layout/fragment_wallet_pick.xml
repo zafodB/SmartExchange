@@ -6,39 +6,37 @@
     android:layout_height="match_parent"
     tools:context=".UI.WalletPick">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <Button
-            android:id="@+id/create_new_wallet"
+            android:id="@+id/buttonCreateNewWallet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="50dp"
             android:layout_marginEnd="32dp"
             android:layout_marginStart="32dp"
-            android:text="or Import own Wallet"
+            android:text="@string/label_import_wallet"
             android:textAllCaps="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
-            android:id="@+id/staticTextView01"
+            android:id="@+id/labelTransferEtherStart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="32dp"
             android:layout_marginStart="32dp"
             android:layout_marginTop="32dp"
-            android:text="You can transfer Ether to this address to start:"
+            android:text="@string/label_transfer_ether_start"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/newPublicAddressView"
+            android:id="@+id/textNewPublicAddress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
@@ -51,18 +49,18 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/staticTextView01" />
+            app:layout_constraintTop_toBottomOf="@+id/labelTransferEtherStart" />
 
         <Button
-            android:id="@+id/continue_button1"
+            android:id="@+id/buttonContinue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="50dp"
-            android:text="Continue"
+            android:text="@string/label_continue"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/newPublicAddressView" />
+            app:layout_constraintTop_toBottomOf="@+id/textNewPublicAddress" />
     </android.support.constraint.ConstraintLayout>
 </FrameLayout>
