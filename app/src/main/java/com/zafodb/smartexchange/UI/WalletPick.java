@@ -3,51 +3,36 @@ package com.zafodb.smartexchange.UI;
 import android.content.Context;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.zafodb.smartexchange.MainActivity;
+import com.zafodb.smartexchange.Constants;
 import com.zafodb.smartexchange.R;
-import com.zafodb.smartexchange.TradeDeal;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link WalletPick.OnFragmentInteractionListener} interface
+ * {@link OnFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link WalletPick#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class WalletPick extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "walletAddress";
 
-    // TODO: Rename and change types of parameters
     private String walletAddress;
 
     private OnFragmentInteractionListener mListener;
 
-    public WalletPick() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @return A new instance of fragment WalletPick.
-     */
-    // TODO: Rename and change types and number of parameters
     public static WalletPick newInstance(String param1) {
         WalletPick fragment = new WalletPick();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
+        args.putString(Constants.WALLET_PICK_PARAM1, param1);
         fragment.setArguments(args);
         return fragment;
     }
@@ -57,36 +42,34 @@ public class WalletPick extends Fragment {
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
-            walletAddress = getArguments().getString(ARG_PARAM1);
+            walletAddress = getArguments().getString(Constants.WALLET_PICK_PARAM1);
         }
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_wallet_pick, container, false);
+    }
 
-        View view = inflater.inflate(R.layout.fragment_wallet_pick, container, false);
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        TextView newPublicAddress = view.findViewById(R.id.newPublicAddressView);
+        TextView newPublicAddress = view.findViewById(R.id.textNewPublicAddress);
 
         newPublicAddress.setText(walletAddress);
 
-        Button continueButton = view.findViewById(R.id.continue_button1);
+        Button continueButton = view.findViewById(R.id.buttonContinue);
 
         continueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onButtonPressed(MainActivity.FROM_WALLET_PICK_TO_DEPLOY);
+                onButtonPressed(Constants.FROM_WALLET_PICK_TO_DEPLOY);
             }
         });
-
-
-        return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(int interactionCase) {
         if (mListener != null) {
             mListener.onFragmentInteraction(interactionCase);
@@ -121,9 +104,6 @@ public class WalletPick extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(int interactionCase);
-
     }
-
 }

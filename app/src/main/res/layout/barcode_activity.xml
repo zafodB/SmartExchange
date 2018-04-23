@@ -6,9 +6,6 @@
     <com.zafodb.smartexchange.Camera.CameraSourcePreview
         android:id="@+id/camera_preview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-
-    </com.zafodb.smartexchange.Camera.CameraSourcePreview>
+        android:layout_height="match_parent"/>
 
 </android.support.constraint.ConstraintLayout>

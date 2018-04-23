@@ -10,14 +10,30 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="20dp"
+            app:layout_constraintGuide_percent="0.05" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="20dp"
+            app:layout_constraintGuide_percent="0.95" />
+
         <TextView
-            android:id="@+id/staticTextView02"
+            android:id="@+id/labelCurrentbalance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="24dp"
-            android:text="Your current balance is:"
+            android:text="@string/label_current_balance"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -32,7 +48,7 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/staticTextView02">
+            app:layout_constraintTop_toBottomOf="@+id/labelCurrentbalance">
 
             <TextView
                 android:id="@+id/ethBallanceCurrent"
@@ -53,90 +69,74 @@
                 android:src="@android:drawable/ic_popup_sync" />
         </LinearLayout>
 
-        <android.support.constraint.Guideline
-            android:id="@+id/guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_begin="20dp"
-            app:layout_constraintGuide_percent="0.05" />
-
-        <android.support.constraint.Guideline
-            android:id="@+id/guideline2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_begin="20dp"
-            app:layout_constraintGuide_percent="0.95" />
-
         <EditText
-            android:id="@+id/ethAddressInput"
+            android:id="@+id/inputEthAddress"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="24dp"
             android:ems="10"
-            android:hint="Destination kETH address "
+            android:hint="@string/hint_destination_eth"
             android:inputType="textPersonName"
-            app:layout_constraintEnd_toStartOf="@+id/qrEthAddress"
+            app:layout_constraintEnd_toStartOf="@+id/buttonQrEth"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
         <Button
-            android:id="@+id/qrEthAddress"
+            android:id="@+id/buttonQrEth"
             android:layout_width="50dp"
             android:layout_height="38dp"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="24dp"
-            android:text="QR"
+            android:text="@string/label_qr"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
         <EditText
-            android:id="@+id/btcAmountInput"
+            android:id="@+id/inputBtcAmount"
             android:layout_width="0dp"
             android:layout_height="46dp"
             android:layout_marginTop="24dp"
             android:ems="10"
-            android:hint="Amount to monitor (in BTC)"
+            android:hint="@string/hint_amount_btc"
             android:inputType="numberDecimal"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
             app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/ethAddressInput" />
+            app:layout_constraintTop_toBottomOf="@+id/inputEthAddress" />
 
         <EditText
-            android:id="@+id/btcAddressInput"
+            android:id="@+id/inputBtcAddress"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:ems="10"
-            android:hint="Bitcoin address to monitor"
+            android:hint="@string/hint_address_btc"
             android:inputType="textPersonName"
-            app:layout_constraintEnd_toStartOf="@+id/qrBtcAddress"
+            app:layout_constraintEnd_toStartOf="@+id/buttonQrBtc"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toBottomOf="@+id/btcAmountInput" />
+            app:layout_constraintTop_toBottomOf="@+id/inputBtcAmount" />
 
         <Button
-            android:id="@+id/qrBtcAddress"
+            android:id="@+id/buttonQrBtc"
             android:layout_width="50dp"
             android:layout_height="38dp"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="24dp"
-            android:text="QR"
+            android:text="@string/label_qr"
             app:layout_constraintEnd_toStartOf="@+id/guideline2"
-            app:layout_constraintTop_toBottomOf="@+id/btcAmountInput" />
+            app:layout_constraintTop_toBottomOf="@+id/inputBtcAmount" />
 
         <Button
-            android:id="@+id/validateDeployBtn"
+            android:id="@+id/button_validate_proceed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Validate"
+            android:text="@string/label_validate"
             android:textAllCaps="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btcAddressInput" />
+            app:layout_constraintTop_toBottomOf="@+id/inputBtcAddress" />
 
 
     </android.support.constraint.ConstraintLayout>

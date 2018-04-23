@@ -2,6 +2,30 @@
     <string name="app_name">SmartExchange</string>
     <string name="title_activity_main">MainActivity</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="label_contract_deployed">Contract deployed to the network in transaction:</string>
+    <string name="text_tx_hash">Transaction hash will appear here.</string>
+    <string name="text_tx_hyperlink">Hyperlink will appear here.</string>
+    <string name="label_current_balance">Your current balance is:</string>
+    <string name="hint_destination_eth">Destination kETH address</string>
+    <string name="label_qr">QR</string>
+    <string name="hint_amount_btc">Amount to monitor (in BTC)</string>
+    <string name="hint_address_btc">Bitcoin address to monitor</string>
+    <string name="label_validate">Validate</string>
+    <string name="label_are_you_sure">Are you sure you want to transfer</string>
+    <string name="dummy_eth_balance">0.0 kETH</string>
+    <string name="label_to_address">to address:</string>
+    <string name="dummy_eth_address">0x0000000000000000000000000000000000000000</string>
+    <string name="label_with_condition">with condition, that</string>
+    <string name="dummy_btc_amount">0.00 BTC</string>
+    <string name="label_will_be_transferred">will be transferred to:</string>
+    <string name="dummy_btc_address">2N000000000000000000000000000000000</string>
+    <string name="label_gas_price">Gas Price</string>
+    <string name="dummy_gas_price">30 GWei</string>
+    <string name="label_gas_limit">Gas Limit</string>
+    <string name="dummy_gas_limit">30 000 000</string>
+    <string name="yes">YES</string>
+    <string name="no">NO</string>
+    <string name="label_import_wallet">or Import own Wallet</string>
+    <string name="label_transfer_ether_start">You can transfer Ether to this address to start:</string>
+    <string name="label_continue">Continue</string>
 </resources>

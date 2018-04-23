@@ -1,9 +1,8 @@
 package com.zafodb.smartexchange.UI;
 
-import android.content.Context;
-import android.net.Uri;
-import android.os.Bundle;
 import android.app.Fragment;
+import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,83 +10,79 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.zafodb.smartexchange.MainActivity;
+import com.zafodb.smartexchange.Constants;
 import com.zafodb.smartexchange.R;
 import com.zafodb.smartexchange.TradeDeal;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link ValidateDeploy.OnFragmentInteractionListener} interface
+ * {@link WalletPick.OnFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link ValidateDeploy#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class ValidateDeploy extends Fragment {
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-
-    TextView ethAmount;
-    TextView btcAddress;
-    TextView btcAmount;
-    TextView ethAddress;
 
     private TradeDeal tradeDeal;
 
     private WalletPick.OnFragmentInteractionListener mListener;
 
+    public static ValidateDeploy newInstance(TradeDeal tradeDeal) {
+        ValidateDeploy fragment = new ValidateDeploy();
+        Bundle args = new Bundle();
+        args.putSerializable(Constants.VALIDATE_DEPLOY_PARAM1, tradeDeal);
+        fragment.setArguments(args);
+
+        return fragment;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        MainActivity activity = (MainActivity) getActivity();
-
-        tradeDeal = activity.getTradeDeal();
-    }
-
-    public ValidateDeploy() {
-        // Required empty public constructor
-
-    }
-
-    public static ValidateDeploy newInstance() {
-        return new ValidateDeploy();
+        if (getArguments() != null) {
+            tradeDeal = (TradeDeal) getArguments().getSerializable(Constants.VALIDATE_DEPLOY_PARAM1);
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_validate_deploy, container, false);
+        return inflater.inflate(R.layout.fragment_validate_deploy, container, false);
+    }
 
-        ethAmount = view.findViewById(R.id.confEthBal);
-        btcAddress = view.findViewById(R.id.confBtcAddr);
-        btcAmount = view.findViewById(R.id.confBtcAmount);
-        ethAddress = view.findViewById(R.id.confEthAddr);
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        TextView ethAmount = view.findViewById(R.id.textEthBalanceConf);
+        TextView btcAddress = view.findViewById(R.id.textBtcAddressConf);
+        TextView btcAmount = view.findViewById(R.id.textBtcAmountConf);
+        TextView ethAddress = view.findViewById(R.id.textEthAddressConf);
 
         ethAmount.setText(String.valueOf(tradeDeal.getAmountWei()));
         btcAmount.setText(String.valueOf(tradeDeal.getAmountSatoshi()));
         btcAddress.setText(tradeDeal.getDestinationBtcAddress());
         ethAddress.setText(tradeDeal.getDestinationEthAddress());
 
-        Button validateTrue = view.findViewById(R.id.validateBtnTrue);
+        Button validateTrue = view.findViewById(R.id.buttonValidateTrue);
         validateTrue.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onButtonPressed(MainActivity.VALIDATION_SUCCESSFUL);
+                onButtonPressed(Constants.VALIDATION_SUCCESSFUL);
             }
         });
 
-        Button validateFalse = view.findViewById(R.id.validateBtnFalse);
+        Button validateFalse = view.findViewById(R.id.buttonValidateFalse);
         validateFalse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onButtonPressed(MainActivity.VALIDATION_UNSUCCESSFUL);
+                onButtonPressed(Constants.VALIDATION_UNSUCCESSFUL);
             }
         });
-
-        return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(int interactionCase) {
         if (mListener != null) {
             mListener.onFragmentInteraction(interactionCase);
@@ -109,20 +104,5 @@ public class ValidateDeploy extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 }

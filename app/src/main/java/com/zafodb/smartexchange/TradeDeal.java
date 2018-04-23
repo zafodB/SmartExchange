@@ -35,11 +35,11 @@ public class TradeDeal implements Serializable{
         return destinationBtcAddress;
     }
 
-    public void setDestinationBtcAddress(String destinationBtcAddress) throws Exception {
+    public void setDestinationBtcAddress(String destinationBtcAddress) throws ValidationException {
         try {
             Address.fromBase58(TestNet3Params.get(), destinationBtcAddress);
         } catch (AddressFormatException ae) {
-            throw new Exception(ae.getMessage(), ae.getCause());
+            throw new ValidationException(ae.getMessage(), ae.getCause());
         }
 
         this.destinationBtcAddress = destinationBtcAddress;
@@ -53,7 +53,7 @@ public class TradeDeal implements Serializable{
         this.amountSatoshi = amountSatoshi;
     }
 
-    public void setAmountSatoshi(String amountBtcString) throws Exception {
+    public void setAmountSatoshi(String amountBtcString) throws ValidationException {
 
         try {
             BigDecimal btc = new BigDecimal(amountBtcString);
@@ -61,14 +61,14 @@ public class TradeDeal implements Serializable{
             btc = btc.multiply(new BigDecimal("100000000"));
 
             if (btc.compareTo(BigDecimal.ONE) <= 0) {
-                throw new Exception("Amount is too small.");
+                throw new ValidationException("Amount is too small.");
             }
 
             this.amountSatoshi = btc.toBigInteger();
 
 //        TODO Let user know whats wrong (if returns false)
         } catch (NumberFormatException ne) {
-            throw new Exception(ne.getMessage(), ne.getCause());
+            throw new ValidationException(ne.getMessage(), ne.getCause());
         }
     }
 
@@ -77,9 +77,9 @@ public class TradeDeal implements Serializable{
         return destinationEthAddress;
     }
 
-    public void setDestinationEthAddress(String destinationEthAddress) throws Exception {
+    public void setDestinationEthAddress(String destinationEthAddress) throws ValidationException {
         if (!Web3jwrapper.validateAddress(destinationEthAddress)) {
-            throw new Exception("Address is not valid.");
+            throw new ValidationException("Address is not valid.");
         }
 
         this.destinationEthAddress = destinationEthAddress;

@@ -3,22 +3,21 @@ package com.zafodb.smartexchange;
 import android.content.Context;
 import android.util.Log;
 
+import org.web3j.crypto.CipherException;
 import org.web3j.crypto.Credentials;
-import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.Web3jFactory;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.request.EthFilter;
-import org.web3j.protocol.core.methods.response.EthBlockNumber;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
 import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.EthLog;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
-import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.http.HttpService;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -30,54 +29,54 @@ public class Web3jwrapper {
 
     private final static Web3j web3j;
 
-    static DieselPrice dieselDeploy;
+//    static DieselPrice dieselDeploy;
 
     static {
 //        web3j = Web3jFactory.build(new HttpService("https://kovan.infura.io/ROrdzkoD6Ua0TH7cyaSh"));
 //        web3j = Web3jFactory.build(new HttpService("https://kovan.infura.io/IlXkpW67R8mNHL0HDIdO"));
-        web3j = Web3jFactory.build(new HttpService("https://kovan.infura.io/Ceux1wHF7EsQWKb9p8da"));
+        web3j = Web3jFactory.build(new HttpService(Constants.INFURA_NODE_URL));
     }
 
 
-    static String getClientVerison() {
+//    static String getClientVerison() {
+//
+//        try {
+//            Web3ClientVersion web3ClientVersion = web3j.web3ClientVersion().sendAsync().get();
+//            return web3ClientVersion.getWeb3ClientVersion();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        return null;
+//    }
 
-        try {
-            Web3ClientVersion web3ClientVersion = web3j.web3ClientVersion().sendAsync().get();
-            return web3ClientVersion.getWeb3ClientVersion();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//    static BigInteger getBlockNumber() {
+//        try {
+//            EthBlockNumber blockNo = web3j.ethBlockNumber().sendAsync().get();
+//            return blockNo.getBlockNumber();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
 
-        return null;
-    }
-
-    static BigInteger getBlockNumber() {
-        try {
-            EthBlockNumber blockNo = web3j.ethBlockNumber().sendAsync().get();
-            return blockNo.getBlockNumber();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    static String deployReadyContractTest(Context context) {
-
-        try {
-            Credentials credentials = WalletUtils.loadCredentials("aaa", context.getFilesDir().getPath() + "/" + "UTC--2018-04-14T17-19-50.144--00f42f5423f199998c48a50b9ec39df44e36836b.json");
-
-            DieselPrice dieselDeploy = DieselPrice.deploy(
-                    web3j,
-                    credentials,
-                    new BigInteger("30000000000"),
-                    new BigInteger("3000000"),
-                    BigInteger.ZERO, BigInteger.valueOf(402)).sendAsync().get();
-
-            return "success";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "failed";
-        }
+//    static String deployReadyContractTest(Context context) {
+//
+//        try {
+//            Credentials credentials = WalletUtils.loadCredentials("aaa", context.getFilesDir().getPath() + "/" + "UTC--2018-04-14T17-19-50.144--00f42f5423f199998c48a50b9ec39df44e36836b.json");
+//
+//            DieselPrice dieselDeploy = DieselPrice.deploy(
+//                    web3j,
+//                    credentials,
+//                    new BigInteger("30000000000"),
+//                    new BigInteger("3000000"),
+//                    BigInteger.ZERO, BigInteger.valueOf(402)).sendAsync().get();
+//
+//            return "success";
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return "failed";
+//        }
 
 //        byte[] bytes;
 //        try {
@@ -99,7 +98,7 @@ public class Web3jwrapper {
 //            EthSendTransaction transactionResponse = web3j.send .ethSendTransaction(transaction).sendAsync().get();
 //
 //
-//            return transactionResponse.getTransactionHash();
+//            return transactionResponse.getmTransactionHash();
 //        } catch (ClientConnectionException ce) {
 //            Log.e("FILIP", "Check 2");
 //            ce.getCause();
@@ -115,17 +114,27 @@ public class Web3jwrapper {
 //
 //
 //        return "failed";
-    }
+//    }
 
-    static String deployReadyContract(Context context, String walletFilename, BigInteger initialValue, String btcAddress, String ethAddress, String satoshiAmount) {
-
+    /**
+     * Creates and sends contract to the network. Unlocks the wallet file from the cache and uses
+     * it to deploy the contract. If successful, returns the transaction hash.
+     *
+     * TODO: allow user to pick Gas price (and maybe Gas limit).
+     *
+     * @param context Needed in order to find cache dir.
+     * @param walletFilename Needed to locate wallet file.
+     * @param initialValue Ether that will be transferred to the other party.
+     * @param btcAddress Bitcoin address of the user (this will be queried in the contract).
+     * @param ethAddress Ether address of the other party (destination of Ether).
+     * @param satoshiAmount Queried Expected Bitcoin amount to arrive to user's Bitcoin wallet.
+     * @return Transaction hash, if successful. Lame error message otherwise.
+     */
+    static private String sendContract(Context context, String walletFilename,
+                                       BigInteger initialValue, String btcAddress,
+                                       String ethAddress, String satoshiAmount) {
         try {
             Credentials credentials = WalletUtils.loadCredentials("aaa", context.getCacheDir().getPath() + "/" + walletFilename);
-
-//            initialValue = BigInteger.ZERO;
-//            btcAddress = "0";
-//            ethAddress = "0";
-//            satoshiAmount = "0";
 
             SmartExchange1 smartExchange1 = SmartExchange1.deploy(
                     web3j,
@@ -143,11 +152,20 @@ public class Web3jwrapper {
 
             return receipt.getTransactionHash();
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "failed";
+//            TODO: Proper Error handling.
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            return "Failed due to: " + ioe.getMessage();
+        } catch (CipherException ce){
+            ce.printStackTrace();
+            return "Failed due to: " + ce.getMessage();
+        } catch (InterruptedException ie){
+            ie.printStackTrace();
+            return "Failed due to: " + ie.getMessage();
+        } catch (ExecutionException ee){
+            ee.printStackTrace();
+            return "Failed due to: " + ee.getMessage();
         }
-
     }
 
 //    static String invokeDieselPriceUpdate(Context context) {
@@ -177,7 +195,7 @@ public class Web3jwrapper {
 //            }
 //
 //            return out;
-////            return transactionReceipt.getTransactionHash();
+////            return transactionReceipt.getmTransactionHash();
 //
 //        } catch (Exception e) {
 //            e.printStackTrace();
@@ -261,8 +279,15 @@ public class Web3jwrapper {
         }
     }
 
+    /**
+     * Checks balance of queried address.
+     *
+     * @param address Ethereu address to check.
+     * @return Balance in Wei.
+     *
+     * TODO: Do proper error handling.
+     */
     public static BigInteger getAddressBalance(String address) {
-
 //        TODO remove temporary
 //        TEMPORARY arrangement
 //       address = "0x967587b42d9425fa2c8d01de0dc8da00eb246804";
@@ -270,27 +295,39 @@ public class Web3jwrapper {
         address = "0x12eFbeE9BBE117EEf08190d5e144FD4D168421A5";
 
         try {
-            EthGetBalance ethGetBalance = web3j.ethGetBalance(address, DefaultBlockParameterName.LATEST).sendAsync().get();
+            EthGetBalance ethGetBalance = web3j
+                    .ethGetBalance(address, DefaultBlockParameterName.LATEST)
+                    .sendAsync()
+                    .get();
 
             return ethGetBalance.getBalance();
 
-        } catch (Exception e) {
+        } catch (InterruptedException ie) {
             Log.e("FILIP", "Couldn't fetch wallet address because of exception.");
-            e.printStackTrace();
+            ie.printStackTrace();
+
+            return null;
+        } catch (ExecutionException ee){
+            Log.e("FILIP", "Couldn't fetch wallet address because of exception.");
+            ee.printStackTrace();
 
             return null;
         }
-
     }
 
-    public static String ethBalanceToString(BigInteger balance) {
-
-        BigDecimal divisor = new BigDecimal("1000000000000000000");
-
+    /**
+     * Converts amount of Wei (supplied by getBalance method) to user-readable format (Ether).
+     *
+     * @param balance Address balance in Wei.
+     * @param decimals Decimals displayed in result.
+     * @return User-readable string, ending in " kETH".
+     */
+    public static String ethBalanceToString(BigInteger balance, int decimals) {
+        BigDecimal divisor = new BigDecimal(Constants.WEIS_IN_ETHER);
         BigDecimal temp = new BigDecimal(balance);
 
         temp = temp.divide(divisor);
-        temp = temp.setScale(4, RoundingMode.HALF_DOWN);
+        temp = temp.setScale(decimals, RoundingMode.HALF_DOWN);
 
         String out = temp.toPlainString();
 
@@ -315,14 +352,32 @@ public class Web3jwrapper {
         }
     }
 
+    /**
+     * Verifies whether the supplied String is a valid kETH address.
+     *
+     * @param address Supplied string (user input).
+     * @return True if address is valid.
+     */
     public static boolean validateAddress(String address) {
         return WalletUtils.isValidAddress(address);
     }
 
+    /**
+     * Prepares contract for deployment. Subtracts the estimated contract deployment cost
+     * (i.e. gas * gas price) from the amount that will be send with the contract.
+     *
+     * @param context This is needed in order to read WalletFile from the cache.
+     * @param walletFileName This is needed to locate the WalletFile
+     * @param tradeDeal This includes the details of the contract.
+     * @return Transaction hash, if successful. 'Failed due to :' otherwise.
+     * TODO: Revisit proper error handling.
+     */
     public static String deployContract(Context context, String walletFileName, TradeDeal tradeDeal) {
-        BigInteger amountToSend = tradeDeal.getAmountWei().subtract(new BigInteger("90000000000000000"));
+        BigInteger amountToSend = tradeDeal.getAmountWei()
+                .subtract(new BigInteger(Constants.ESTIMATED_CONTRACT_PRICE));
 
-        return deployReadyContract(context, walletFileName, amountToSend, tradeDeal.getDestinationBtcAddress(), tradeDeal.getDestinationEthAddress(), tradeDeal.getAmountSatoshi().toString());
-
+        return sendContract(context, walletFileName, amountToSend,
+                tradeDeal.getDestinationBtcAddress(), tradeDeal.getDestinationEthAddress(),
+                tradeDeal.getAmountSatoshi().toString());
     }
 }

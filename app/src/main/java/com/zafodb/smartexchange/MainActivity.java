@@ -1,8 +1,11 @@
 package com.zafodb.smartexchange;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.zafodb.smartexchange.UI.ContractSent;
 import com.zafodb.smartexchange.UI.DeployContract;
@@ -17,180 +20,201 @@ import java.math.BigInteger;
 
 public class MainActivity extends Activity implements WalletPick.OnFragmentInteractionListener {
 
-    public static final int FROM_WALLET_PICK_TO_DEPLOY = 564;
-    public static final int ETH_BALANCE_UPDATE = 565;
-    public static final int FROM_DEPLOY_TO_VALIDATE = 567;
-    public static final int VALIDATION_UNSUCCESSFUL = 568;
-    public static final int VALIDATION_SUCCESSFUL = 589;
-
-    public TradeDeal getTradeDeal() {
-        return tradeDeal;
-    }
-
-    public void setTradeDeal(TradeDeal tradeDeal) {
-        this.tradeDeal = tradeDeal;
-    }
-
-    private TradeDeal tradeDeal;
-
-    public String getTransactionHash() {
-        return transactionHash;
-    }
-
-    public void setTransactionHash(String transactionHash) {
-        this.transactionHash = transactionHash;
-    }
-
-    private String transactionHash;
-
-    String walletFileName;
+    private TradeDeal mTradeDeal;
+    private String mTransactionHash;
+    private String mWalletFileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (savedInstanceState != null) {
+            return;
+        }
+
+//        TODO: see, if this is placed in a good spot.
         prepareWallet();
 
-        WalletPick walletPickFragment = WalletPick.newInstance(getWalletAddress());
-
-        getFragmentManager().beginTransaction()
-                .addToBackStack(walletPickFragment.toString())
-                .replace(R.id.fragment_container, walletPickFragment).commit();
+        WalletPick fragment = WalletPick.newInstance(getWalletAddress());
+        openNewFragment(fragment, fragment.getClass().getName());
     }
 
     @Override
     public void onFragmentInteraction(int interactionCase) {
-
         switch (interactionCase) {
-            case FROM_WALLET_PICK_TO_DEPLOY:
-                openDeployingFragment();
+            case Constants.FROM_WALLET_PICK_TO_DEPLOY:
+                openNewFragment(DeployContract.newInstance(), Constants.DEPLOY_FRAGMENT_TAG);
                 break;
-            case ETH_BALANCE_UPDATE:
+            case Constants.ETH_BALANCE_UPDATE:
                 updateEthBalance();
                 break;
-            case VALIDATION_UNSUCCESSFUL:
+            case Constants.VALIDATION_UNSUCCESSFUL:
                 onBackPressed();
                 break;
-            case FROM_DEPLOY_TO_VALIDATE:
-                openValidationFragment(tradeDeal);
+            case Constants.FROM_DEPLOY_TO_VALIDATE:
+                openNewFragment(ValidateDeploy.newInstance(getmTradeDeal()), Constants.VALIDATE_FRAGMENT_TAG);
                 break;
-            case VALIDATION_SUCCESSFUL:
-                openSentFragment();
+            case Constants.VALIDATION_SUCCESSFUL:
+                openNewFragment(ContractSent.newInstance(), Constants.SENT_FRAGMENT_TAG);
                 deployContract();
+                break;
         }
     }
 
+    /**
+     * If user presses back button after they just sent the contract, this method will prevent
+     * {@link ValidateDeploy} from showing (to prevent accidental double-deploy.
+     */
+    @Override
+    public void onBackPressed() {
+
+        Log.v("FILIP", "checkpoint 8");
+
+        ValidateDeploy fragment = (ValidateDeploy) getFragmentManager().findFragmentByTag(Constants.VALIDATE_FRAGMENT_TAG);
+        if (fragment != null) {
+            getFragmentManager().popBackStack(ValidateDeploy.class.getName(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        } else
+            super.onBackPressed();
+    }
+
+    /**
+     * Should destroy the currently used wallet on destroy (as this should be empty).
+     * However, this is not the ideal behaviour, should revisit this, whether it is needed.
+     *
+     * TODO: revisit deleting the wallets on destroy.
+     */
     @Override
     protected void onDestroy() {
-//        File oldWallet = new File(getCacheDir().getPath() + "/" + walletFileName);
+//        File oldWallet = new File(getCacheDir().getPath() + "/" + mWalletFileName);
 //
 //        oldWallet.delete();
 
         super.onDestroy();
     }
 
-    //    TODO repeated method 1/3
-    void openDeployingFragment() {
-        DeployContract newFragment = new DeployContract();
-        Bundle args = new Bundle();
-        args.putString("walletFileName", walletFileName);
-        args.putString("walletAddress", getWalletAddress());
-        newFragment.setArguments(args);
-
+    /**
+     * Opens a fragment. Used to navigate forward in the app.
+     *
+     * @param fragment Instance of fragment to be opened.
+     * @param fragmentTag Fragment tag (defined in {@link Constants}).
+     */
+    private void openNewFragment(Fragment fragment, String fragmentTag) {
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment, fragmentTag);
 
-        transaction.replace(R.id.fragment_container, newFragment, "deployFragTag");
-
-//        TODO look at what addtobackstack does
-        transaction.addToBackStack(null);
-
-        // Commit the transaction
-        transaction.commit();
-    }
-
-    //    TODO repeated method 2/3
-    void openValidationFragment(TradeDeal tradeDeal){
-        ValidateDeploy newFragment = new ValidateDeploy();
-        Bundle args = new Bundle();
-        args.putSerializable("trade_deal_instance", tradeDeal);
-        newFragment.setArguments(args);
-
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-
-        transaction.replace(R.id.fragment_container, newFragment, "validateFragTag");
-//        transaction.addToBackStack(null);
+        transaction.addToBackStack(fragment.getClass().getName());
 
         transaction.commit();
     }
 
-//    TODO repeated method 3/3
-    void openSentFragment(){
-        ContractSent newFragment = new ContractSent();
-
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, newFragment, "sentFragTag");
-        transaction.commit();
-    }
-
+    /**
+     * Generates new wallet file. This wallet will be used to deploy the exchange contract.
+     * User should transfer the funds to this wallet to continue.
+     */
     private void prepareWallet() {
 
 //        DISABLED TEMPORARILY
-//        walletFileName = Web3jwrapper.createNewWallet(getApplicationContext());
+//        mWalletFileName = Web3jwrapper.createNewWallet(getApplicationContext());
 
 //        createCacheWallet();
 
-        walletFileName = "UTC--2018-04-21T19-27-42.888--12efbee9bbe117eef08190d5e144fd4d168421a5.json";
+        mWalletFileName = "UTC--2018-04-21T19-27-42.888--12efbee9bbe117eef08190d5e144fd4d168421a5.json";
     }
 
-    String getWalletAddress() {
-        return Web3jwrapper.getWalletAddress(walletFileName, getApplicationContext());
+    /**
+     * Fetches the ETH address of the current wallet, using the {@link Web3jwrapper} class.
+     *
+     * @return kETH address formatted as string (and prefixed with '0x'.
+     */
+    private String getWalletAddress() {
+        return Web3jwrapper.getWalletAddress(mWalletFileName, getApplicationContext());
     }
 
-    void updateEthBalance() {
+    /**
+     * Updates eth balance of the current address, using the {@link Web3jwrapper} class.
+     *
+     * Runs on a new thread, to avoid blocking UI.
+     */
+    private void updateEthBalance() {
         new Thread(new Runnable() {
             @Override
             public void run() {
 
                 BigInteger bal = Web3jwrapper.getAddressBalance(getWalletAddress());
 
-                PushDataToFragment pusher = (PushDataToFragment) getFragmentManager().findFragmentByTag("deployFragTag");
+                FragmentUpdateListener pusher = (FragmentUpdateListener) getFragmentManager()
+                        .findFragmentByTag(Constants.DEPLOY_FRAGMENT_TAG);
 
-                pusher.pushBalance(bal);
+                Bundle args = new Bundle();
+                args.putSerializable(Constants.BALANCE_AS_BIGINTEGER, bal);
+                if (pusher != null) {
+                    pusher.pushUpdate(args);
+                } else {
+                    Log.v("FILIP", "Couldn't push message, because fragment stopped existing.");
+                }
 
             }
         }).start();
     }
 
-    public interface PushDataToFragment {
-        void pushBalance(BigInteger bal);
-
-        void pushTxHash(String txHash);
-    }
-
-    void deployContract(){
+    /**
+     * Deploys new contract using {@link Web3jwrapper} class.
+     *
+     * Since network communication is needed, the contract is deployed on a new separate thread, so
+     * that UI is not blocked.
+     *
+     * UI update needs to be carried back on the UI thread.
+     */
+    private void deployContract() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                setTransactionHash(Web3jwrapper.deployContract(getApplicationContext(), walletFileName, tradeDeal));
+                setmTransactionHash(Web3jwrapper.deployContract(getApplicationContext(), mWalletFileName, mTradeDeal));
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        PushDataToFragment pusher = (PushDataToFragment) getFragmentManager().findFragmentByTag("sentFragTag");
+                        FragmentUpdateListener pusher = (FragmentUpdateListener) getFragmentManager()
+                                .findFragmentByTag(Constants.SENT_FRAGMENT_TAG);
 
-                        pusher.pushTxHash(getTransactionHash());
+                        Bundle args = new Bundle();
+                        args.putString(Constants.TRANSACTION_HASH, getmTransactionHash());
+
+                        if (pusher != null) {
+                            pusher.pushUpdate(args);
+                        } else {
+                            Log.v("FILIP", "Couldn't push message, because fragment stopped existing.");
+                        }
                     }
                 });
-
             }
         }).start();
-
     }
 
-//    METHOD USED ONLY DURING DEVELOPEMENT
-    void createCacheWallet(){
-        File wallet = new File(getApplicationContext().getCacheDir().getPath()+"/UTC--2018-04-21T19-27-42.888--12efbee9bbe117eef08190d5e144fd4d168421a5.json");
+    public TradeDeal getmTradeDeal() {
+        return mTradeDeal;
+    }
+
+    public void setmTradeDeal(TradeDeal mTradeDeal) {
+        this.mTradeDeal = mTradeDeal;
+    }
+
+    public String getmTransactionHash() {
+        return mTransactionHash;
+    }
+
+    public void setmTransactionHash(String mTransactionHash) {
+        this.mTransactionHash = mTransactionHash;
+    }
+
+    public interface FragmentUpdateListener {
+        void pushUpdate(Bundle args);
+    }
+
+    //    METHOD USED ONLY DURING DEVELOPEMENT
+    void createCacheWallet() {
+        File wallet = new File(getApplicationContext().getCacheDir().getPath() + "/UTC--2018-04-21T19-27-42.888--12efbee9bbe117eef08190d5e144fd4d168421a5.json");
 
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(wallet, true));
@@ -201,4 +225,5 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
             e.printStackTrace();
         }
     }
+
 }
