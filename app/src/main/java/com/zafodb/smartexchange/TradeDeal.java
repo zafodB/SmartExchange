@@ -1,5 +1,7 @@
 package com.zafodb.smartexchange;
 
+import com.zafodb.smartexchange.Wrappers.Web3jwrapper;
+
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.params.TestNet3Params;

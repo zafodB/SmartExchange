@@ -24,7 +24,7 @@ import com.zafodb.smartexchange.MainActivity;
 import com.zafodb.smartexchange.R;
 import com.zafodb.smartexchange.TradeDeal;
 import com.zafodb.smartexchange.ValidationException;
-import com.zafodb.smartexchange.Web3jwrapper;
+import com.zafodb.smartexchange.Wrappers.Web3jwrapper;
 
 import java.math.BigInteger;
 
@@ -81,7 +81,7 @@ public class DeployContract extends Fragment implements MainActivity.FragmentUpd
         btcAmount = view.findViewById(R.id.inputBtcAmount);
         ethAddress = view.findViewById(R.id.inputEthAddress);
 
-        refreshBalanceButton = view.findViewById(R.id.refreshBalanceButton);
+        refreshBalanceButton = view.findViewById(R.id.buttonRefreshBalance);
         refreshBalanceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

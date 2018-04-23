@@ -6,6 +6,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.zafodb.smartexchange.Wrappers.Web3jwrapper;
+
 public class TestActivity extends Activity {
 
     TextView outputText;
@@ -22,7 +24,7 @@ public class TestActivity extends Activity {
             @Override
             public void onClick(View view) {
 
-                appendToTextBox(String.valueOf(Web3jwrapper.deployReadyContractTest(getApplicationContext())));
+//                appendToTextBox(String.valueOf(Web3jwrapper.deployReadyContractTest(getApplicationContext())));
             }
         });
 

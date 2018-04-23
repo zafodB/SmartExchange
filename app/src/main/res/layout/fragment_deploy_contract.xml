@@ -56,15 +56,14 @@
                 android:layout_height="35dp"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="0.00 kETH"
+                android:text="@string/dummy_eth_balance"
                 android:textAlignment="center"
                 tools:text="1.23 kETH" />
 
             <ImageButton
-                android:id="@+id/refreshBalanceButton"
+                android:id="@+id/buttonRefreshBalance"
                 android:layout_width="39dp"
                 android:layout_height="35dp"
-
                 android:layout_weight="1"
                 android:src="@android:drawable/ic_popup_sync" />
         </LinearLayout>

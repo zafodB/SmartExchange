@@ -1,5 +1,7 @@
 package com.zafodb.smartexchange;
 
+import com.zafodb.smartexchange.Wrappers.Web3jwrapper;
+
 public class Constants {
 
     /***

@@ -1,7 +1,11 @@
-package com.zafodb.smartexchange;
+package com.zafodb.smartexchange.Wrappers;
 
 import android.content.Context;
 import android.util.Log;
+
+import com.zafodb.smartexchange.Constants;
+import com.zafodb.smartexchange.SmartExchange1;
+import com.zafodb.smartexchange.TradeDeal;
 
 import org.web3j.crypto.CipherException;
 import org.web3j.crypto.Credentials;
@@ -203,7 +207,7 @@ public class Web3jwrapper {
 //        }
 //    }
 
-    static String createNewFilter() {
+    public static String createNewFilter() {
         EthFilter myFilter = new EthFilter(DefaultBlockParameterName.EARLIEST, DefaultBlockParameterName.LATEST, "0xdDb813cC954994180edcF50aa9b3532e428Ac35E");
 
 //        web3j.ethNewFilter(myFilter)
@@ -266,7 +270,7 @@ public class Web3jwrapper {
         }
     }
 
-    static String getWalletAddress(String walletFilename, Context context) {
+    public static String getWalletAddress(String walletFilename, Context context) {
         try {
             Credentials creds = WalletUtils.loadCredentials("aaa", context.getCacheDir().getPath() + "/" + walletFilename);
 

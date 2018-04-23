@@ -11,6 +11,7 @@ import com.zafodb.smartexchange.UI.ContractSent;
 import com.zafodb.smartexchange.UI.DeployContract;
 import com.zafodb.smartexchange.UI.ValidateDeploy;
 import com.zafodb.smartexchange.UI.WalletPick;
+import com.zafodb.smartexchange.Wrappers.Web3jwrapper;
 
 import java.io.BufferedWriter;
 import java.io.File;

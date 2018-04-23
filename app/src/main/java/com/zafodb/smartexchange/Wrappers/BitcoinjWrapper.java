@@ -1,4 +1,4 @@
-package com.zafodb.smartexchange;
+package com.zafodb.smartexchange.Wrappers;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.AddressFormatException;
