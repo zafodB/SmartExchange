@@ -68,7 +68,7 @@ public class TradeDeal implements Serializable{
 
             this.amountSatoshi = btc.toBigInteger();
 
-//        TODO Let user know whats wrong (if returns false)
+//        TODO Let user know whats wrong (if exception is thrown)
         } catch (NumberFormatException ne) {
             throw new ValidationException(ne.getMessage(), ne.getCause());
         }

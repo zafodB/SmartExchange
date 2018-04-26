@@ -10,15 +10,20 @@ public class Constants {
     public static final int FROM_WALLET_PICK_TO_DEPLOY = 564;
     public static final int ETH_BALANCE_UPDATE = 565;
     public static final int FROM_DEPLOY_TO_VALIDATE = 567;
-    public static final int VALIDATION_UNSUCCESSFUL = 568;
-    public static final int VALIDATION_SUCCESSFUL = 589;
+    public static final int VALIDATION_DENIED_BY_USER = 568;
+    public static final int VALIDATION_SUCCESSFUL = 569;
+    public static final int OFFERS_UPDATE = 570;
+    public static final int FROM_OFFERS_TO_WALLETPICK = 571;
 
+    public static final String OFFERS_FRAGMENT_TAG = "offerFragTag";
+    public static final String WALLET_PICK_FRAGMENT_TAG = "walletPickFragTag";
     public static final String DEPLOY_FRAGMENT_TAG = "deployFragTag";
     public static final String VALIDATE_FRAGMENT_TAG = "validateFragTag";
     public static final String SENT_FRAGMENT_TAG = "sentFragTag";
 
     public static final String BALANCE_AS_BIGINTEGER = "balanceAsBigInt";
     public static final String TRANSACTION_HASH = "txHash";
+    public static final String OFFERS_LIST = "btcOffers";
 
     /**
      * Argument names for {@link com.zafodb.smartexchange.UI.DeployContract} fragment.

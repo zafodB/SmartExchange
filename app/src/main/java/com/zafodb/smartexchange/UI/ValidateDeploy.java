@@ -78,7 +78,7 @@ public class ValidateDeploy extends Fragment {
         validateFalse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onButtonPressed(Constants.VALIDATION_UNSUCCESSFUL);
+                onButtonPressed(Constants.VALIDATION_DENIED_BY_USER);
             }
         });
     }
