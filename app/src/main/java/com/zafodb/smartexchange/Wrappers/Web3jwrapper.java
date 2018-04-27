@@ -6,6 +6,7 @@ import android.util.Log;
 import com.zafodb.smartexchange.Constants;
 import com.zafodb.smartexchange.SmartExchange1;
 import com.zafodb.smartexchange.TradeDeal;
+import com.zafodb.smartexchange.ValidationException;
 
 import org.web3j.crypto.CipherException;
 import org.web3j.crypto.Credentials;
@@ -123,15 +124,15 @@ public class Web3jwrapper {
     /**
      * Creates and sends contract to the network. Unlocks the wallet file from the cache and uses
      * it to deploy the contract. If successful, returns the transaction hash.
-     *
+     * <p>
      * TODO: allow user to pick Gas price (and maybe Gas limit).
      *
-     * @param context Needed in order to find cache dir.
+     * @param context        Needed in order to find cache dir.
      * @param walletFilename Needed to locate wallet file.
-     * @param initialValue Ether that will be transferred to the other party.
-     * @param btcAddress Bitcoin address of the user (this will be queried in the contract).
-     * @param ethAddress Ether address of the other party (destination of Ether).
-     * @param satoshiAmount Queried Expected Bitcoin amount to arrive to user's Bitcoin wallet.
+     * @param initialValue   Ether that will be transferred to the other party.
+     * @param btcAddress     Bitcoin address of the user (this will be queried in the contract).
+     * @param ethAddress     Ether address of the other party (destination of Ether).
+     * @param satoshiAmount  Queried Expected Bitcoin amount to arrive to user's Bitcoin wallet.
      * @return Transaction hash, if successful. Lame error message otherwise.
      */
     static private String sendContract(Context context, String walletFilename,
@@ -160,13 +161,13 @@ public class Web3jwrapper {
         } catch (IOException ioe) {
             ioe.printStackTrace();
             return "Failed due to: " + ioe.getMessage();
-        } catch (CipherException ce){
+        } catch (CipherException ce) {
             ce.printStackTrace();
             return "Failed due to: " + ce.getMessage();
-        } catch (InterruptedException ie){
+        } catch (InterruptedException ie) {
             ie.printStackTrace();
             return "Failed due to: " + ie.getMessage();
-        } catch (ExecutionException ee){
+        } catch (ExecutionException ee) {
             ee.printStackTrace();
             return "Failed due to: " + ee.getMessage();
         }
@@ -288,7 +289,7 @@ public class Web3jwrapper {
      *
      * @param address Ethereu address to check.
      * @return Balance in Wei.
-     *
+     * <p>
      * TODO: Do proper error handling.
      */
     public static BigInteger getAddressBalance(String address) {
@@ -311,7 +312,7 @@ public class Web3jwrapper {
             ie.printStackTrace();
 
             return null;
-        } catch (ExecutionException ee){
+        } catch (ExecutionException ee) {
             Log.e("FILIP", "Couldn't fetch wallet address because of exception.");
             ee.printStackTrace();
 
@@ -322,13 +323,13 @@ public class Web3jwrapper {
     /**
      * Converts amount of Wei (supplied by getBalance method) to user-readable format (Ether).
      *
-     * @param balance Address balance in Wei.
+     * @param wei      Address balance in Wei.
      * @param decimals Decimals displayed in result.
      * @return User-readable string, ending in " kETH".
      */
-    public static String ethBalanceToString(BigInteger balance, int decimals) {
+    public static String weiToString(BigInteger wei, int decimals) {
         BigDecimal divisor = new BigDecimal(Constants.WEIS_IN_ETHER);
-        BigDecimal temp = new BigDecimal(balance);
+        BigDecimal temp = new BigDecimal(wei);
 
         temp = temp.divide(divisor);
         temp = temp.setScale(decimals, RoundingMode.HALF_DOWN);
@@ -336,6 +337,24 @@ public class Web3jwrapper {
         String out = temp.toPlainString();
 
         return out + " kETH";
+    }
+
+    public static BigInteger stringToWei(String ethAsString) throws ValidationException {
+        try {
+            BigDecimal eth = new BigDecimal(ethAsString);
+
+            eth = eth.multiply(new BigDecimal(Constants.WEIS_IN_ETHER));
+
+            if (eth.compareTo(BigDecimal.ONE) <= 0) {
+                throw new ValidationException("Amount is too small.");
+            }
+
+            return eth.toBigInteger();
+
+//        TODO Let user know whats wrong (if exception is thrown)
+        } catch (NumberFormatException ne) {
+            throw new ValidationException(ne.getMessage(), ne.getCause());
+        }
     }
 
     static BigInteger getNonce(String address) {
@@ -370,9 +389,9 @@ public class Web3jwrapper {
      * Prepares contract for deployment. Subtracts the estimated contract deployment cost
      * (i.e. gas * gas price) from the amount that will be send with the contract.
      *
-     * @param context This is needed in order to read WalletFile from the cache.
+     * @param context        This is needed in order to read WalletFile from the cache.
      * @param walletFileName This is needed to locate the WalletFile
-     * @param tradeDeal This includes the details of the contract.
+     * @param tradeDeal      This includes the details of the contract.
      * @return Transaction hash, if successful. 'Failed due to :' otherwise.
      * TODO: Revisit proper error handling.
      */

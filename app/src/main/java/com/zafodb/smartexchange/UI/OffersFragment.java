@@ -28,9 +28,6 @@ public class OffersFragment extends Fragment implements MainActivity.FragmentUpd
     RecyclerView.LayoutManager mLayoutManager;
     OfferAdapter mAdapter;
 
-    Button continueButton;
-    Button refreshOffersButton;
-
     public static OffersFragment newInstance() {
         return new OffersFragment();
     }
@@ -59,8 +56,7 @@ public class OffersFragment extends Fragment implements MainActivity.FragmentUpd
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        continueButton = view.findViewById(R.id.buttonContinueOffers);
-
+        Button continueButton = view.findViewById(R.id.buttonContinueOffers);
         continueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -68,13 +64,22 @@ public class OffersFragment extends Fragment implements MainActivity.FragmentUpd
             }
         });
 
-        refreshOffersButton = view.findViewById(R.id.buttonRefreshOffers);
+        Button refreshOffersButton = view.findViewById(R.id.buttonRefreshOffers);
         refreshOffersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onButtonPressed(Constants.OFFERS_UPDATE);
             }
         });
+
+        Button newOfferButton = view.findViewById(R.id.buttonCreateOffers);
+        newOfferButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onButtonPressed(Constants.FROM_OFFERS_TO_NEWOFFER);
+            }
+        });
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event

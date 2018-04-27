@@ -89,17 +89,11 @@ public class DeployContract extends Fragment implements MainActivity.FragmentUpd
             }
         });
 
-        Button validateButton = view.findViewById(R.id.button_validate_proceed);
+        Button validateButton = view.findViewById(R.id.buttonValidateProceed);
         validateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (validateInput(btcAddress.getText().toString(), btcAmount.getText().toString(), ethAddress.getText().toString())) {
-
-                    MainActivity activity = (MainActivity) getActivity();
-                    activity.setmTradeDeal(tradeDeal);
-
-                    onButtonPressed(Constants.FROM_DEPLOY_TO_VALIDATE);
-                } else Log.i("FILIP", "Something wrong");
+                onButtonPressed(Constants.FROM_DEPLOY_TO_VALIDATE);
             }
         });
 
@@ -122,7 +116,15 @@ public class DeployContract extends Fragment implements MainActivity.FragmentUpd
 
     public void onButtonPressed(int interactionCase) {
         if (mListener != null) {
-            mListener.onFragmentInteraction(interactionCase);
+            if (interactionCase == Constants.FROM_DEPLOY_TO_VALIDATE) {
+                if (validateInput(btcAddress.getText().toString(), btcAmount.getText().toString(), ethAddress.getText().toString())) {
+
+                    MainActivity activity = (MainActivity) getActivity();
+                    activity.setmTradeDeal(tradeDeal);
+
+                    mListener.onFragmentInteraction(interactionCase);
+                } else Log.i("FILIP", "Something wrong");
+            }
         }
     }
 
@@ -155,7 +157,7 @@ public class DeployContract extends Fragment implements MainActivity.FragmentUpd
             ethBalance.setText("Error");
         } else {
             tradeDeal.setAmountWei(balance);
-            ethBalance.setText(Web3jwrapper.ethBalanceToString(balance, Constants.BALANCE_DISPLAY_DECIMALS));
+            ethBalance.setText(Web3jwrapper.weiToString(balance, Constants.BALANCE_DISPLAY_DECIMALS));
         }
     }
 
@@ -172,7 +174,7 @@ public class DeployContract extends Fragment implements MainActivity.FragmentUpd
         }
 
 //        TODO Actually check and verify ETH balance
-        if(tradeDeal.getAmountWei() == null){
+        if (tradeDeal.getAmountWei() == null) {
             return false;
         }
 

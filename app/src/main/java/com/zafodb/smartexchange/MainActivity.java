@@ -8,8 +8,10 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.zafodb.smartexchange.UI.ContractSent;
+import com.zafodb.smartexchange.UI.CreateOfferFragment;
 import com.zafodb.smartexchange.UI.DeployContract;
 import com.zafodb.smartexchange.UI.OfferAdapter;
+import com.zafodb.smartexchange.UI.OfferStatus;
 import com.zafodb.smartexchange.UI.OffersFragment;
 import com.zafodb.smartexchange.UI.ValidateDeploy;
 import com.zafodb.smartexchange.UI.WalletPick;
@@ -27,6 +29,10 @@ import java.util.List;
 public class MainActivity extends Activity implements WalletPick.OnFragmentInteractionListener {
 
     private TradeDeal mTradeDeal;
+
+
+
+    private BtcOffer mOffer;
     private String mTransactionHash;
     private String mWalletFileName;
 
@@ -39,6 +45,10 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
             return;
         }
 
+//        createCacheWallet();
+
+        prepareWallet();
+
         openNewFragment(OffersFragment.newInstance(), Constants.OFFERS_FRAGMENT_TAG);
 //        updateOffers();
     }
@@ -49,8 +59,8 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
             case Constants.FROM_OFFERS_TO_WALLETPICK:
 //                  TODO: Handle what offer was picked.
 //                  TODO: see, if this is placed in a good spot.
-                prepareWallet();
                 openNewFragment(WalletPick.newInstance(getWalletAddress()), Constants.WALLET_PICK_FRAGMENT_TAG);
+                break;
             case Constants.FROM_WALLET_PICK_TO_DEPLOY:
                 openNewFragment(DeployContract.newInstance(), Constants.DEPLOY_FRAGMENT_TAG);
                 break;
@@ -69,6 +79,13 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
                 break;
             case Constants.OFFERS_UPDATE:
                 updateOffers();
+                break;
+            case Constants.FROM_OFFERS_TO_NEWOFFER:
+                openNewFragment(CreateOfferFragment.newInstance(), Constants.CREATE_OFFER_TAG);
+                break;
+            case Constants.CREATE_NEW_OFFER:
+                FirebaseWrapper.createBtcOffer(mOffer);
+                openNewFragment(OfferStatus.newInstance(mOffer), Constants.OFFER_STATUS_FRAGMENT_TAG);
                 break;
         }
     }
@@ -237,6 +254,10 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
 
     public String getmTransactionHash() {
         return mTransactionHash;
+    }
+
+    public void setmOffer(BtcOffer mOffer) {
+        this.mOffer = mOffer;
     }
 
     public void setmTransactionHash(String mTransactionHash) {

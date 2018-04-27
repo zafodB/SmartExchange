@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:189168944825:android:06a24fcc76bbe175",
         "android_client_info": {
-          "package_name": "com.zafodb.smartexchange"
+          "package_name": "com.zafod.smartexchange"
         }
       },
       "oauth_client": [
@@ -31,6 +31,50 @@
         "appinvite_service": {
           "status": 1,
           "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:189168944825:android:560aaefe427cf92e",
+        "android_client_info": {
+          "package_name": "com.zafodb.smartexchange"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "189168944825-f9nb028dkrsnu9c0s7cnttscq38tet34.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zafodb.smartexchange",
+            "certificate_hash": "4d5e513badc980c67b35203beed073f4a1a29c39"
+          }
+        },
+        {
+          "client_id": "189168944825-7aku99iksgmmd6dnq7vlnc5are1qolbe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhBvkKcf9g8DHegzPuJDECkTLJA6nBrBU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "189168944825-7aku99iksgmmd6dnq7vlnc5are1qolbe.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

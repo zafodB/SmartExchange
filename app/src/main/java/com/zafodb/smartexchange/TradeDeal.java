@@ -1,5 +1,6 @@
 package com.zafodb.smartexchange;
 
+import com.zafodb.smartexchange.Wrappers.BitcoinjWrapper;
 import com.zafodb.smartexchange.Wrappers.Web3jwrapper;
 
 import org.bitcoinj.core.Address;
@@ -56,24 +57,8 @@ public class TradeDeal implements Serializable{
     }
 
     public void setAmountSatoshi(String amountBtcString) throws ValidationException {
-
-        try {
-            BigDecimal btc = new BigDecimal(amountBtcString);
-
-            btc = btc.multiply(new BigDecimal("100000000"));
-
-            if (btc.compareTo(BigDecimal.ONE) <= 0) {
-                throw new ValidationException("Amount is too small.");
-            }
-
-            this.amountSatoshi = btc.toBigInteger();
-
-//        TODO Let user know whats wrong (if exception is thrown)
-        } catch (NumberFormatException ne) {
-            throw new ValidationException(ne.getMessage(), ne.getCause());
-        }
+        this.amountSatoshi = BitcoinjWrapper.btcStringToSatoshi(amountBtcString);
     }
-
 
     public String getDestinationEthAddress() {
         return destinationEthAddress;

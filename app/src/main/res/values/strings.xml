@@ -29,6 +29,18 @@
     <string name="label_transfer_ether_start">You can transfer Ether to this address to start:</string>
     <string name="label_continue">Continue</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hint_nickname">Nickname (optional)</string>
+    <string name="hint_btc_sell">BTC to sell</string>
+    <string name="hint_eth_buy">ETH to buy</string>
+    <string name="hint_eth_address">ETH address</string>
+    <string name="label_create_btc_offer">Create new BTC offer</string>
+    <string name="label_create_offer">Create new offer</string>
+    <string name="label_delete_offer">Delete offer</string>
+    <string name="label_offer_status">The current status of your offer is:</string>
+    <string name="text_status_sent">The offer has been published.</string>
+    <string name="text_status_conf1">Someone accepted your offer. Please confirm.</string>
+    <string name="text_status_conf2">You confirmed. Waiting for their response.</string>
+    <string name="text_status_accepted">The offer has been accepted. Send Bitcoins to this address:</string>
+
 </resources>

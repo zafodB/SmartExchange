@@ -127,7 +127,7 @@
             app:layout_constraintTop_toBottomOf="@+id/inputBtcAmount" />
 
         <Button
-            android:id="@+id/button_validate_proceed"
+            android:id="@+id/buttonValidateProceed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"

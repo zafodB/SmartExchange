@@ -1,11 +1,16 @@
 package com.zafodb.smartexchange.Wrappers;
 
+import com.zafodb.smartexchange.Constants;
+import com.zafodb.smartexchange.ValidationException;
+
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.AddressFormatException;
 import org.bitcoinj.core.WrongNetworkException;
 import org.bitcoinj.params.TestNet3Params;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
 
 public class BitcoinjWrapper {
 
@@ -23,6 +28,40 @@ public class BitcoinjWrapper {
 //            return false;
 //        }
 //    }
+
+    public static BigInteger btcStringToSatoshi(String btcBalance) throws ValidationException{
+        try {
+            BigDecimal btc = new BigDecimal(btcBalance);
+
+            btc = btc.multiply(new BigDecimal(Constants.SATOSHIS_IN_BTC));
+
+            if (btc.compareTo(BigDecimal.ONE) <= 0) {
+                throw new ValidationException("Amount is too small.");
+            }
+
+            return btc.toBigInteger();
+
+//        TODO Let user know whats wrong (if exception is thrown)
+        } catch (NumberFormatException ne) {
+            throw new ValidationException(ne.getMessage(), ne.getCause());
+        }
+
+    }
+
+    public static String satoshiToBtcString(BigInteger satoshi, int decimals){
+        BigDecimal divisor = new BigDecimal(Constants.SATOSHIS_IN_BTC);
+        BigDecimal temp = new BigDecimal(satoshi);
+
+        temp = temp.divide(divisor);
+        temp = temp.setScale(decimals, RoundingMode.HALF_DOWN);
+
+        String out = temp.toPlainString();
+
+        return out + " BTC";
+    }
+
+
+
 
 //    public static boolean isValidBtcAmount(String btcAsString) {
 //        if (btcAsString == null) {

@@ -83,7 +83,7 @@ public class OfferAdapter extends RecyclerView.Adapter<OfferAdapter.ViewHolder> 
             nickname.setText(offer.getNickname());
             btcAmount.setText(offer.getAmountSatoshiOffered().toString());
 //            TODO: convert satoshi into human-readable format
-            ethAmount.setText(Web3jwrapper.ethBalanceToString(offer.getAmountWeiWanted(), 4));
+            ethAmount.setText(Web3jwrapper.weiToString(offer.getAmountWeiWanted(), 4));
 //            TODO consider how IDs should look like
             idView.setText("#LOL");
         }
