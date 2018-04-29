@@ -7,6 +7,7 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.firebase.database.ValueEventListener;
 import com.zafodb.smartexchange.UI.ContractSent;
 import com.zafodb.smartexchange.UI.CreateOfferFragment;
 import com.zafodb.smartexchange.UI.DeployContract;
@@ -29,12 +30,12 @@ import java.util.List;
 public class MainActivity extends Activity implements WalletPick.OnFragmentInteractionListener {
 
     private TradeDeal mTradeDeal;
-
-
-
     private BtcOffer mOffer;
+
     private String mTransactionHash;
     private String mWalletFileName;
+
+    private ValueEventListener mValueEventListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +88,8 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
                 FirebaseWrapper.createBtcOffer(mOffer);
                 openNewFragment(OfferStatus.newInstance(mOffer), Constants.OFFER_STATUS_FRAGMENT_TAG);
                 break;
+            case Constants.REMOVE_VALUE_EVENT_LISTENER:
+                FirebaseWrapper.removeOffersListener(mValueEventListener);
         }
     }
 
@@ -99,8 +102,15 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
         ValidateDeploy fragment = (ValidateDeploy) getFragmentManager().findFragmentByTag(Constants.VALIDATE_FRAGMENT_TAG);
         if (fragment != null) {
             getFragmentManager().popBackStack(ValidateDeploy.class.getName(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        } else
-            super.onBackPressed();
+        } else {
+            CreateOfferFragment fragment1 = (CreateOfferFragment) getFragmentManager().findFragmentByTag(Constants.CREATE_OFFER_TAG);
+
+            if (fragment1 != null) {
+                getFragmentManager().popBackStack(CreateOfferFragment.class.getName(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            } else {
+                super.onBackPressed();
+            }
+        }
     }
 
     /**
@@ -218,30 +228,7 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
     }
 
     public void updateOffers() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final List<BtcOffer> offers = FirebaseWrapper.fetchExistingOffers();
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        FragmentUpdateListener pusher = (FragmentUpdateListener) getFragmentManager()
-                                .findFragmentByTag(Constants.OFFERS_FRAGMENT_TAG);
-
-                        Bundle args = new Bundle();
-
-                        args.putSerializable(Constants.OFFERS_LIST, (Serializable) offers);
-
-                        if (pusher != null) {
-                            pusher.pushUpdate(args);
-                        } else {
-                            Log.v("FILIP", "Couldn't push message, because fragment stopped existing.");
-                        }
-                    }
-                });
-            }
-        }).start();
+        mValueEventListener = FirebaseWrapper.fetchExistingOffers(this);
     }
 
     public TradeDeal getmTradeDeal() {

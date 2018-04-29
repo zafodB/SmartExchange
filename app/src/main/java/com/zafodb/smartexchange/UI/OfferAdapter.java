@@ -1,5 +1,6 @@
 package com.zafodb.smartexchange.UI;
 
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 
 import com.zafodb.smartexchange.BtcOffer;
 import com.zafodb.smartexchange.R;
+import com.zafodb.smartexchange.Wrappers.BitcoinjWrapper;
 import com.zafodb.smartexchange.Wrappers.Web3jwrapper;
 
 import java.math.BigInteger;
@@ -18,16 +20,17 @@ import java.util.List;
 public class OfferAdapter extends RecyclerView.Adapter<OfferAdapter.ViewHolder> {
 
     private List<BtcOffer> mBtcOffers;
+    private static OffersFragment parentFragment;
 
-    public OfferAdapter(List<BtcOffer> btcOffers) {
-
-        Log.v("FILIP", "Was here");
+    public OfferAdapter(List<BtcOffer> btcOffers, OffersFragment fragment) {
         if (btcOffers == null){
             mBtcOffers = new ArrayList<>();
             mBtcOffers.add(new BtcOffer(BigInteger.ZERO, BigInteger.ZERO, "to be updated", "to be updated"));
         } else {
             mBtcOffers = btcOffers;
         }
+
+        parentFragment = fragment;
     }
 
     @Override
@@ -49,6 +52,11 @@ public class OfferAdapter extends RecyclerView.Adapter<OfferAdapter.ViewHolder> 
 
     static void offerClicked(int position) {
 //        TODO: Do stuff. Convert this to interface maybe? Dunno
+
+        RecyclerViewClickListener listener = parentFragment;
+        listener.recyclerViewItemClicked(position);
+
+        Log.d("FILIP", "Offer clicked");
 //
     }
 
@@ -70,6 +78,8 @@ public class OfferAdapter extends RecyclerView.Adapter<OfferAdapter.ViewHolder> 
                 public void onClick(View view) {
                     offerClicked(getAdapterPosition());
                     Log.v("FILIP", "Something was clicked lol");
+
+                    view.setBackgroundColor(Color.rgb(147, 188, 255));
                 }
             });
 
@@ -81,11 +91,14 @@ public class OfferAdapter extends RecyclerView.Adapter<OfferAdapter.ViewHolder> 
 
         void setupContent(BtcOffer offer){
             nickname.setText(offer.getNickname());
-            btcAmount.setText(offer.getAmountSatoshiOffered().toString());
-//            TODO: convert satoshi into human-readable format
+            btcAmount.setText(BitcoinjWrapper.satoshiToBtcString(offer.getAmountSatoshiOffered(), 4));
             ethAmount.setText(Web3jwrapper.weiToString(offer.getAmountWeiWanted(), 4));
 //            TODO consider how IDs should look like
-            idView.setText("#LOL");
+            idView.setText("#ID");
         }
+    }
+
+    public interface RecyclerViewClickListener{
+        public void recyclerViewItemClicked(int position);
     }
 }

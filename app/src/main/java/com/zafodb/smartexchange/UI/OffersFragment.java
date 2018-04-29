@@ -1,6 +1,7 @@
 package com.zafodb.smartexchange.UI;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.zafodb.smartexchange.BtcOffer;
 import com.zafodb.smartexchange.Constants;
@@ -20,13 +22,15 @@ import com.zafodb.smartexchange.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OffersFragment extends Fragment implements MainActivity.FragmentUpdateListener{
+public class OffersFragment extends Fragment implements MainActivity.FragmentUpdateListener, OfferAdapter.RecyclerViewClickListener {
 
     private WalletPick.OnFragmentInteractionListener mListener;
 
     RecyclerView mRecyclerView;
     RecyclerView.LayoutManager mLayoutManager;
     OfferAdapter mAdapter;
+    TextView noOffers;
+
 
     public static OffersFragment newInstance() {
         return new OffersFragment();
@@ -43,11 +47,13 @@ public class OffersFragment extends Fragment implements MainActivity.FragmentUpd
         View view = inflater.inflate(R.layout.fragment_offers, container, false);
 
         mRecyclerView = view.findViewById(R.id.recyclerViewOffers);
-        mAdapter = new OfferAdapter(null);
+        mAdapter = new OfferAdapter(null, this);
         mRecyclerView.setAdapter(mAdapter);
 
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
+
+        onButtonPressed(Constants.OFFERS_UPDATE);
 
         return view;
     }
@@ -80,9 +86,10 @@ public class OffersFragment extends Fragment implements MainActivity.FragmentUpd
             }
         });
 
+        noOffers = view.findViewById(R.id.labelNoOffersAtm);
+        noOffers.setVisibility(View.INVISIBLE);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(int interactionCase) {
         if (mListener != null) {
             mListener.onFragmentInteraction(interactionCase);
@@ -109,7 +116,25 @@ public class OffersFragment extends Fragment implements MainActivity.FragmentUpd
     @Override
     public void pushUpdate(Bundle args) {
         List<BtcOffer> offers = (ArrayList<BtcOffer>) args.getSerializable(Constants.OFFERS_LIST);
-        mAdapter.updateList(offers);
+        if (offers != null && offers.size() == 0) {
+            mRecyclerView.setVisibility(View.GONE);
+            noOffers.setVisibility(View.VISIBLE);
+        } else if (offers != null) {
+            noOffers.setVisibility(View.INVISIBLE);
+            mRecyclerView.setVisibility(View.VISIBLE);
+            mAdapter.updateList(offers);
+        }
     }
 
+    @Override
+    public void recyclerViewItemClicked(int position) {
+        for (int childCount = mRecyclerView.getChildCount(), i = 0; i < childCount; ++i) {
+
+            OfferAdapter.ViewHolder holder = (OfferAdapter.ViewHolder) mRecyclerView.getChildViewHolder(mRecyclerView.getChildAt(i));
+
+            if (i != position) {
+                holder.itemView.setBackgroundColor(Color.WHITE);
+            }
+        }
+    }
 }

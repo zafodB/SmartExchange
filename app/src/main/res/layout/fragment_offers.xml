@@ -20,16 +20,17 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerViewOffers"
             android:layout_width="0dp"
-            android:layout_height="280dp"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="32dp"
             android:layout_marginStart="32dp"
             android:layout_marginTop="32dp"
+            android:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView" />
+            app:layout_constraintTop_toBottomOf="@+id/labelOffersTitle" />
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/labelOffersTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -45,32 +46,42 @@
             android:id="@+id/buttonContinueOffers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
             android:text="Confirm"
-            app:layout_constraintStart_toStartOf="@+id/guideline4"
-            app:layout_constraintTop_toBottomOf="@+id/recyclerViewOffers" />
+            app:layout_constraintBottom_toTopOf="@+id/buttonCreateOffers"
+            app:layout_constraintStart_toStartOf="@+id/guideline4" />
 
         <Button
             android:id="@+id/buttonRefreshOffers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
             android:layout_marginEnd="16dp"
-            android:layout_marginTop="16dp"
             android:text="Refresh"
             android:textAllCaps="false"
-            app:layout_constraintEnd_toStartOf="@+id/guideline4"
-            app:layout_constraintTop_toBottomOf="@+id/recyclerViewOffers" />
+            app:layout_constraintBottom_toTopOf="@+id/buttonCreateOffers"
+            app:layout_constraintEnd_toStartOf="@+id/guideline4" />
 
         <Button
             android:id="@+id/buttonCreateOffers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginBottom="50dp"
             android:text="Create new offer"
             android:textAllCaps="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/labelNoOffersAtm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:text="Unfortunately, there are no available offers at the moment."
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/buttonRefreshOffers" />
+            app:layout_constraintTop_toBottomOf="@+id/labelOffersTitle" />
     </android.support.constraint.ConstraintLayout>
 </FrameLayout>

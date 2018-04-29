@@ -29,18 +29,13 @@ import java.util.UUID;
 
 public class FirebaseWrapper {
 
-
     private static FirebaseDatabase fireData;
-    private static FirebaseAuth fireAuth;
-    private static FirebaseUser fireUser;
-
-    static boolean goOn = false;
+//    private static FirebaseAuth fieAuth;
+//    private static FirebaseUser fireUser;
 
     static {
         fireData = FirebaseDatabase.getInstance();
-        fireAuth = FirebaseAuth.getInstance();
-
-
+//        fireAuth = FirebaseAuth.getInstance();
     }
 
 //    public static void signIn(Activity activity) {
@@ -64,7 +59,6 @@ public class FirebaseWrapper {
 //    }
 
     public static void createBtcOffer(BtcOffer offer) {
-
         DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS);
 
         String offerUID = offer.getOfferId().toString();
@@ -82,7 +76,7 @@ public class FirebaseWrapper {
         ref.child(offer.getOfferId().toString()).removeValue();
     }
 
-    public static void getOfferStatus(final Activity activity, BtcOffer offer) {
+    public static ValueEventListener getOfferStatus(final Activity activity, BtcOffer offer) {
         DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS);
 
         ValueEventListener listener = new ValueEventListener() {
@@ -93,7 +87,7 @@ public class FirebaseWrapper {
                                 .getFragmentManager()
                                 .findFragmentByTag(Constants.OFFER_STATUS_FRAGMENT_TAG);
 
-                Long temp =(Long) dataSnapshot.child(Constants.DATA_OFFER_STATUS).getValue();
+                Long temp = (Long) dataSnapshot.child(Constants.DATA_OFFER_STATUS).getValue();
                 int status = temp.intValue();
 
                 Bundle args = new Bundle();
@@ -104,41 +98,120 @@ public class FirebaseWrapper {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+//TODO: handle error.
             }
         };
 
         ref.child(offer.getOfferId().toString()).addValueEventListener(listener);
+        return listener;
     }
 
-    public static void confirmBtcOffer(BtcOffer offer){
+    public static void removeOfferDataValueListener(BtcOffer offer, ValueEventListener listener){
+        DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS);
+
+        ref.child(offer.getOfferId().toString()).removeEventListener(listener);
+
+    }
+
+    public static void confirmBtcOfferFirst(BtcOffer offer) {
         DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS).child(offer.getOfferId().toString());
         ref.child(Constants.DATA_OFFER_STATUS).setValue(Constants.DATA_STATUS_YOU_CONFIRMED);
     }
 
-    public static List<BtcOffer> fetchExistingOffers() {
+    public static void confirmBtcOfferSecond(BtcOffer offer) {
+        DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS).child(offer.getOfferId().toString());
+        ref.child(Constants.DATA_OFFER_STATUS).setValue(Constants.DATA_STATUS_THEY_CONFIRMED);
+    }
+
+    public static ValueEventListener fetchExistingOffers(final Activity activity) {
+        DatabaseReference ref = fireData.getReference();
+//
+        ValueEventListener listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ArrayList<BtcOffer> offers = new ArrayList<>();
+
+                for (DataSnapshot databaseOffer : dataSnapshot.getChildren()) {
+
+                    Long status = (Long) databaseOffer.child(Constants.DATA_OFFER_STATUS).getValue();
+                    if (status != null) {
+                        int offerStatus = status.intValue();
+                        if (offerStatus != Constants.DATA_STATUS_NEW) {
+                            continue;
+                        }
+
+                        BigInteger satoshiOffered =  new BigInteger((String) databaseOffer
+                                .child(Constants.DATA_OFFER_BTC)
+                                .getValue());
+                        BigInteger weiWanted = new BigInteger((String) databaseOffer
+                                .child(Constants.DATA_OFFER_ETH)
+                                .getValue());
+                        String ethAddress = (String) databaseOffer
+                                .child(Constants.DATA_OFFER_ETHADDRESS)
+                                .getValue();
+                        String nickname = (String) databaseOffer
+                                .child(Constants.DATA_OFFER_NICKNAME)
+                                .getValue();
+
+                        BtcOffer offer = new BtcOffer(satoshiOffered, weiWanted, ethAddress, nickname);
+
+                        offers.add(offer);
+                    }
+                }
+
+                MainActivity.FragmentUpdateListener pusher =
+                        (MainActivity.FragmentUpdateListener) activity
+                                .getFragmentManager()
+                                .findFragmentByTag(Constants.OFFERS_FRAGMENT_TAG);
+
+                Bundle args = new Bundle();
+                args.putSerializable(Constants.OFFERS_LIST, offers);
+
+                pusher.pushUpdate(args);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d("FILIP", "databse error");
+            }
+        };
+
+        ref.child(Constants.DATA_BTC_OFFERS).addValueEventListener(listener);
+
+        return listener;
+
+
+//        ref.addValueEventListener(listener);
+
+
 //        DEVELOP SECTION START
-        BigInteger satoshi = new BigInteger("54261");
-        BigInteger wei = new BigInteger("8989997");
-        String address = "0x98945480002160ffds465";
-        String name = "zafod";
-
-        BtcOffer offer1 = new BtcOffer(satoshi, wei, address, name);
-
-        satoshi = new BigInteger("40000");
-        wei = new BigInteger("7770000000");
-        address = "0x11111ffffffaaaaa";
-        name = "Filip";
-
-        BtcOffer offer2 = new BtcOffer(satoshi, wei, address, name);
-
-        List<BtcOffer> offers = new ArrayList<>();
-
-        offers.add(offer1);
-        offers.add(offer2);
+//        BigInteger satoshi = new BigInteger("54261");
+//        BigInteger wei = new BigInteger("8989997");
+//        String address = "0x98945480002160ffds465";
+//        String name = "zafod";
+//
+//        BtcOffer offer1 = new BtcOffer(satoshi, wei, address, name);
+//
+//        satoshi = new BigInteger("40000");
+//        wei = new BigInteger("7770000000");
+//        address = "0x11111ffffffaaaaa";
+//        name = "Filip";
+//
+//        BtcOffer offer2 = new BtcOffer(satoshi, wei, address, name);
+//
+//
+//        offers.add(offer1);
+//        offers.add(offer2);
 
 //        DEVELOP SECTION END
 
-        return offers;
+//        return offers;
+    }
+
+    public static void removeOffersListener(ValueEventListener listener){
+        DatabaseReference ref = fireData.getReference();
+//
+        ref.child(Constants.DATA_BTC_OFFERS).removeEventListener(listener);
     }
 }

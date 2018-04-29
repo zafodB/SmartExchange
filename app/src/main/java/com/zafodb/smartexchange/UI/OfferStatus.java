@@ -1,10 +1,7 @@
 package com.zafodb.smartexchange.UI;
 
-import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.annotation.Nullable;
@@ -15,6 +12,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.ValueEventListener;
 import com.zafodb.smartexchange.BtcOffer;
 import com.zafodb.smartexchange.Constants;
 import com.zafodb.smartexchange.MainActivity;
@@ -27,6 +25,7 @@ public class OfferStatus extends Fragment implements MainActivity.FragmentUpdate
 
     private TextView offerStatus;
     private Button continueButton;
+    private ValueEventListener mValueEventListener;
 
     private WalletPick.OnFragmentInteractionListener mListener;
 
@@ -45,7 +44,7 @@ public class OfferStatus extends Fragment implements MainActivity.FragmentUpdate
             mOffer = (BtcOffer) getArguments().getSerializable(Constants.BTC_OFFER_PARAM1);
         }
 
-        FirebaseWrapper.getOfferStatus(getActivity(), mOffer);
+        mValueEventListener = FirebaseWrapper.getOfferStatus(getActivity(), mOffer);
     }
 
     @Override
@@ -102,6 +101,8 @@ public class OfferStatus extends Fragment implements MainActivity.FragmentUpdate
     public void onDetach() {
         super.onDetach();
         mListener = null;
+
+        FirebaseWrapper.removeOfferDataValueListener(mOffer, mValueEventListener);
     }
 
     private void openConfDialog() {
@@ -133,7 +134,7 @@ public class OfferStatus extends Fragment implements MainActivity.FragmentUpdate
 
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
-        FirebaseWrapper.confirmBtcOffer(mOffer);
+        FirebaseWrapper.confirmBtcOfferFirst(mOffer);
     }
 
     @Override

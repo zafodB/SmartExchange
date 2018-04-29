@@ -17,6 +17,7 @@ public class Constants {
     public static final int FROM_OFFERS_TO_NEWOFFER = 572;
     public static final int CREATE_NEW_OFFER = 573;
     public static final int DELETE_OWN_OFFER = 574;
+    public static final int REMOVE_VALUE_EVENT_LISTENER = 575;
 
 
     /**
