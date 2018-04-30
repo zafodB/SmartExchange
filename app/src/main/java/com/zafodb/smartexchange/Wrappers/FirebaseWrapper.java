@@ -1,18 +1,9 @@
 package com.zafodb.smartexchange.Wrappers;
 
 import android.app.Activity;
-import android.app.Fragment;
-import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -21,45 +12,90 @@ import com.google.firebase.database.ValueEventListener;
 import com.zafodb.smartexchange.BtcOffer;
 import com.zafodb.smartexchange.Constants;
 import com.zafodb.smartexchange.MainActivity;
-import com.zafodb.smartexchange.UI.ConfirmDialogFragment;
 import com.zafodb.smartexchange.UI.CustomFragment;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
+/**
+ * FirebaseWrapper class wraps all the functionality that deals with Firebase.
+ */
 public class FirebaseWrapper {
 
     private static FirebaseDatabase fireData;
-//    private static FirebaseAuth fieAuth;
-//    private static FirebaseUser fireUser;
+    private static ValueEventListener offersListener;
 
     static {
         fireData = FirebaseDatabase.getInstance();
-//        fireAuth = FirebaseAuth.getInstance();
     }
 
-//    public static void signIn(Activity activity) {
-//        fireAuth.signInAnonymously()
-//                .addOnCompleteListener(activity, new OnCompleteListener<AuthResult>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<AuthResult> task) {
-//                        if (task.isSuccessful()) {
-//                            // Sign in success, update UI with the signed-in user's information
-//                            fireUser = fireAuth.getCurrentUser();
-//                            goOn = true;
-//
-//                            Log.d("FILIP", "signInAnonymously:success");
-//                        } else {
-//                            // If sign in fails, display a message to the user.
-////                            TODO: inform user about the failure
-//                            Log.w("FILIP", "signInAnonymously:failure", task.getException());
-//                        }
-//                    }
-//                });
-//    }
+    /**
+     * Fetch the list of existing offers from the database. Saves the reference to the ValueEventListener,
+     * so that is can be deleted afterwards.
+     *
+     * @param activity Activity is needed to find the fragment that called this method. Updater
+     *                 interface of this fragment will be then supplied with results.
+     */
+    public static void fetchExistingOffers(final Activity activity) {
+        DatabaseReference ref = fireData.getReference();
+        offersListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ArrayList<BtcOffer> offers = new ArrayList<>();
+                for (DataSnapshot databaseOffer : dataSnapshot.getChildren()) {
 
+                    Long status = (Long) databaseOffer.child(Constants.DATA_OFFER_STATUS).getValue();
+                    if (status != null) {
+                        String uuid = databaseOffer.getKey();
+
+                        int offerStatus = status.intValue();
+                        if (offerStatus != Constants.DATA_STATUS_NEW) {
+                            continue;
+                        }
+                        BigInteger satoshiOffered = new BigInteger((String) databaseOffer
+                                .child(Constants.DATA_OFFER_BTC)
+                                .getValue());
+                        BigInteger weiWanted = new BigInteger((String) databaseOffer
+                                .child(Constants.DATA_OFFER_ETH)
+                                .getValue());
+                        String ethAddress = (String) databaseOffer
+                                .child(Constants.DATA_OFFER_ETHADDRESS)
+                                .getValue();
+                        String nickname = (String) databaseOffer
+                                .child(Constants.DATA_OFFER_NICKNAME)
+                                .getValue();
+
+                        BtcOffer offer = new BtcOffer(uuid, satoshiOffered, weiWanted, ethAddress, nickname);
+                        offers.add(offer);
+                    }
+                }
+                MainActivity.FragmentUpdateListener pusher =
+                        (MainActivity.FragmentUpdateListener) activity
+                                .getFragmentManager()
+                                .findFragmentByTag(Constants.OFFERS_FRAGMENT_TAG);
+
+                Bundle args = new Bundle();
+                args.putSerializable(Constants.OFFERS_LIST, offers);
+
+                pusher.pushUpdate(args);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+//                TODO: handle the error.
+                Log.d("FILIP", "databse error");
+            }
+        };
+        ref.child(Constants.DATA_BTC_OFFERS).addValueEventListener(offersListener);
+    }
+
+    /**
+     * Create new Bitcoin offer in the database.
+     *
+     * @param offer Offer to create.
+     *
+     * TODO: Check, if offer was created.
+     */
     public static void createBtcOffer(BtcOffer offer) {
         DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS);
 
@@ -72,12 +108,25 @@ public class FirebaseWrapper {
         ref.child(offerUID).child(Constants.DATA_OFFER_STATUS).setValue(Constants.DATA_STATUS_NEW);
     }
 
+    /**
+     * Delete own offer from database.
+     *
+     * @param offer Offer to be deleted.
+     */
     public static void deleteOwnOffer(BtcOffer offer) {
         DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS);
-
         ref.child(offer.getOfferId().toString()).removeValue();
     }
 
+    /**
+     * Get status of a particular offer.
+     *
+     * @param activity Needed to find a fragment that called this method.
+     * @param fragment Needed to find a fragment that called this method to deliver back the result.
+     * @param offer to check for status.
+     * @return reference of ValueEventListener. This is needed in order to delete the listener at
+     * a later time.
+     */
     public static ValueEventListener getOfferStatus(final Activity activity, final CustomFragment fragment, BtcOffer offer) {
         DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS);
 
@@ -100,119 +149,47 @@ public class FirebaseWrapper {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-//TODO: handle error.
+                //TODO: handle error.
             }
         };
-
         ref.child(offer.getOfferId().toString()).addValueEventListener(listener);
         return listener;
     }
 
-    public static void removeOfferDataValueListener(BtcOffer offer, ValueEventListener listener) {
-        DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS);
-        ref.child(offer.getOfferId().toString()).removeEventListener(listener);
-    }
-
+    /**
+     * Update status of a bitcoin offer after user selected the offer.
+     * @param offer Offer to confirm.
+     */
     public static void confirmBtcOfferFirst(BtcOffer offer) {
         DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS).child(offer.getOfferId().toString());
         ref.child(Constants.DATA_OFFER_STATUS).setValue(Constants.DATA_STATUS_THEY_CONFIRMED);
     }
 
+    /**
+     * Update status of a bitcoin offer after the owner of this offer has confirmed.
+     * @param offer Offer to confirm.
+     */
     public static void confirmBtcOfferSecond(BtcOffer offer) {
         DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS).child(offer.getOfferId().toString());
         ref.child(Constants.DATA_OFFER_STATUS).setValue(Constants.DATA_STATUS_YOU_CONFIRMED);
     }
 
-    public static ValueEventListener fetchExistingOffers(final Activity activity) {
+    /**
+     * Remove ValueEventListener from offers overview.
+     */
+    public static void removeOffersListener() {
         DatabaseReference ref = fireData.getReference();
-        ValueEventListener listener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                ArrayList<BtcOffer> offers = new ArrayList<>();
-
-                for (DataSnapshot databaseOffer : dataSnapshot.getChildren()) {
-
-                    Long status = (Long) databaseOffer.child(Constants.DATA_OFFER_STATUS).getValue();
-                    if (status != null) {
-                        String uuid = databaseOffer.getKey();
-
-                        int offerStatus = status.intValue();
-                        if (offerStatus != Constants.DATA_STATUS_NEW) {
-                            continue;
-                        }
-
-                        BigInteger satoshiOffered = new BigInteger((String) databaseOffer
-                                .child(Constants.DATA_OFFER_BTC)
-                                .getValue());
-                        BigInteger weiWanted = new BigInteger((String) databaseOffer
-                                .child(Constants.DATA_OFFER_ETH)
-                                .getValue());
-                        String ethAddress = (String) databaseOffer
-                                .child(Constants.DATA_OFFER_ETHADDRESS)
-                                .getValue();
-                        String nickname = (String) databaseOffer
-                                .child(Constants.DATA_OFFER_NICKNAME)
-                                .getValue();
-
-                        BtcOffer offer = new BtcOffer(uuid, satoshiOffered, weiWanted, ethAddress, nickname);
-
-                        offers.add(offer);
-                    }
-                }
-
-                MainActivity.FragmentUpdateListener pusher =
-                        (MainActivity.FragmentUpdateListener) activity
-                                .getFragmentManager()
-                                .findFragmentByTag(Constants.OFFERS_FRAGMENT_TAG);
-
-                Bundle args = new Bundle();
-                args.putSerializable(Constants.OFFERS_LIST, offers);
-
-                pusher.pushUpdate(args);
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.d("FILIP", "databse error");
-            }
-        };
-
-        ref.child(Constants.DATA_BTC_OFFERS).addValueEventListener(listener);
-
-        return listener;
-
-
-//        ref.addValueEventListener(listener);
-
-
-//        DEVELOP SECTION START
-//        BigInteger satoshi = new BigInteger("54261");
-//        BigInteger wei = new BigInteger("8989997");
-//        String address = "0x98945480002160ffds465";
-//        String name = "zafod";
-//
-//        BtcOffer offer1 = new BtcOffer(satoshi, wei, address, name);
-//
-//        satoshi = new BigInteger("40000");
-//        wei = new BigInteger("7770000000");
-//        address = "0x11111ffffffaaaaa";
-//        name = "Filip";
-//
-//        BtcOffer offer2 = new BtcOffer(satoshi, wei, address, name);
-//
-//
-//        offers.add(offer1);
-//        offers.add(offer2);
-
-//        DEVELOP SECTION END
-
-//        return offers;
+        ref.child(Constants.DATA_BTC_OFFERS).removeEventListener(offersListener);
     }
 
-    public static void removeOffersListener(ValueEventListener listener) {
-        DatabaseReference ref = fireData.getReference();
-//
-        ref.child(Constants.DATA_BTC_OFFERS).removeEventListener(listener);
+    /**
+     * Remove ValueEventListener from a particular offer.
+     *
+     * @param offer Offer to remove listener from.
+     * @param listener listener to remove.
+     */
+    public static void removeOfferDataValueListener(BtcOffer offer, ValueEventListener listener) {
+        DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS);
+        ref.child(offer.getOfferId().toString()).removeEventListener(listener);
     }
 }

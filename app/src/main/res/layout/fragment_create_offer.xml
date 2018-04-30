@@ -6,8 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".UI.CreateOfferFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -29,7 +27,7 @@
             app:layout_constraintGuide_percent="0.95" />
 
         <TextView
-            android:id="@+id/labeCreateOffer"
+            android:id="@+id/labelCreateOffer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
@@ -49,7 +47,7 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline6"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/guideline5"
-            app:layout_constraintTop_toBottomOf="@+id/labeCreateOffer" />
+            app:layout_constraintTop_toBottomOf="@+id/labelCreateOffer" />
 
         <EditText
             android:id="@+id/inputOfferBtc"
@@ -58,7 +56,7 @@
             android:layout_marginTop="24dp"
             android:ems="10"
             android:hint="@string/hint_btc_sell"
-            android:inputType="number"
+            android:inputType="number|numberDecimal"
             app:layout_constraintEnd_toStartOf="@+id/guideline6"
             app:layout_constraintStart_toStartOf="@+id/guideline5"
             app:layout_constraintTop_toBottomOf="@+id/inputOfferNickname" />
@@ -70,7 +68,7 @@
             android:layout_marginTop="24dp"
             android:ems="10"
             android:hint="@string/hint_eth_buy"
-            android:inputType="number"
+            android:inputType="number|numberDecimal"
             app:layout_constraintEnd_toStartOf="@+id/guideline6"
             app:layout_constraintStart_toStartOf="@+id/guideline5"
             app:layout_constraintTop_toBottomOf="@+id/inputOfferBtc" />
@@ -87,8 +85,6 @@
             app:layout_constraintEnd_toStartOf="@+id/buttonOfferQr"
             app:layout_constraintStart_toStartOf="@+id/guideline5"
             app:layout_constraintTop_toBottomOf="@+id/inputOfferEth" />
-
-
 
         <Button
             android:id="@+id/buttonOfferQr"

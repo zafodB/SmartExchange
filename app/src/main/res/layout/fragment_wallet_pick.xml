@@ -42,14 +42,14 @@
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="40dp"
-            android:text="newPublicAddress"
             android:textAllCaps="true"
             android:textColor="@android:color/black"
             android:textIsSelectable="true"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/labelTransferEtherStart" />
+            app:layout_constraintTop_toBottomOf="@+id/labelTransferEtherStart"
+            tools:text="new public address" />
 
         <Button
             android:id="@+id/buttonContinue"

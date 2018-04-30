@@ -10,8 +10,8 @@ import android.widget.TextView;
 
 import com.zafodb.smartexchange.BtcOffer;
 import com.zafodb.smartexchange.R;
-import com.zafodb.smartexchange.Wrappers.BitcoinjWrapper;
-import com.zafodb.smartexchange.Wrappers.Web3jwrapper;
+import com.zafodb.smartexchange.Wrappers.BitcoinWrapper;
+import com.zafodb.smartexchange.Wrappers.EthereumWrapper;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -91,8 +91,8 @@ public class OfferAdapter extends RecyclerView.Adapter<OfferAdapter.ViewHolder> 
 
         void setupContent(BtcOffer offer){
             nickname.setText(offer.getNickname());
-            btcAmount.setText(BitcoinjWrapper.satoshiToBtcString(offer.getAmountSatoshiOffered(), 4));
-            ethAmount.setText(Web3jwrapper.weiToString(offer.getAmountWeiWanted(), 4));
+            btcAmount.setText(BitcoinWrapper.satoshiToBtcString(offer.getAmountSatoshiOffered(), 4));
+            ethAmount.setText(EthereumWrapper.weiToString(offer.getAmountWeiWanted(), 4));
 //            TODO consider how IDs should look like
             idView.setText("#ID");
         }

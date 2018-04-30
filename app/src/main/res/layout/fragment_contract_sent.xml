@@ -25,32 +25,32 @@
         <TextView
             android:id="@+id/textContractTxHash"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-
-            android:layout_marginStart="16dp"
+            android:layout_height="35dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginStart="24dp"
             android:layout_marginTop="32dp"
             android:text="@string/text_tx_hash"
             android:textAlignment="center"
             android:textColor="@android:color/black"
-            android:textStyle="bold"
             android:textIsSelectable="true"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/labelContractDeployed"
-            tools:text="0x399eaac0fdb1a823c3f978c696840a9404878e6a74f7d9d2d02920114d8bc8e0" />
+            app:layout_constraintTop_toBottomOf="@+id/labelContractDeployed" />
 
         <TextView
             android:id="@+id/textTxHyperlink"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:autoLink="web"
             android:text="@string/text_tx_hyperlink"
             android:textColor="@android:color/holo_blue_dark"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textContractTxHash" />
-
 
         <!--TODO: Change text-->
         <Button

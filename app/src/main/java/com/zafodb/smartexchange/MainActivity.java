@@ -15,8 +15,8 @@ import com.zafodb.smartexchange.UI.OfferStatusFragment;
 import com.zafodb.smartexchange.UI.OffersFragment;
 import com.zafodb.smartexchange.UI.ValidateDeployFragment;
 import com.zafodb.smartexchange.UI.WalletPickFragment;
+import com.zafodb.smartexchange.Wrappers.EthereumWrapper;
 import com.zafodb.smartexchange.Wrappers.FirebaseWrapper;
-import com.zafodb.smartexchange.Wrappers.Web3jwrapper;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -29,11 +29,8 @@ public class MainActivity extends Activity implements WalletPickFragment.OnFragm
     private TradeDeal mTradeDeal;
     private BtcOffer mNewOffer;
     private BtcOffer mExistingOffer;
-
     private String mTransactionHash;
     private String mWalletFileName;
-
-    private ValueEventListener mValueEventListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +44,7 @@ public class MainActivity extends Activity implements WalletPickFragment.OnFragm
 //        createCacheWallet();
 
         prepareWallet();
-
         openNewFragment(OffersFragment.newInstance(), Constants.OFFERS_FRAGMENT_TAG);
-//        updateOffers();
     }
 
     @Override
@@ -87,7 +82,7 @@ public class MainActivity extends Activity implements WalletPickFragment.OnFragm
                 openNewFragment(OfferStatusFragment.newInstance(mNewOffer), Constants.OFFER_STATUS_FRAGMENT_TAG);
                 break;
             case Constants.REMOVE_VALUE_EVENT_LISTENER:
-                FirebaseWrapper.removeOffersListener(mValueEventListener);
+                FirebaseWrapper.removeOffersListener();
         }
     }
 
@@ -148,7 +143,7 @@ public class MainActivity extends Activity implements WalletPickFragment.OnFragm
     private void prepareWallet() {
 
 //        DISABLED TEMPORARILY
-//        mWalletFileName = Web3jwrapper.createNewWallet(getApplicationContext());
+//        mWalletFileName = EthereumWrapper.createNewWallet(getApplicationContext());
 
 //        createCacheWallet();
 
@@ -156,16 +151,16 @@ public class MainActivity extends Activity implements WalletPickFragment.OnFragm
     }
 
     /**
-     * Fetches the ETH address of the current wallet, using the {@link Web3jwrapper} class.
+     * Fetches the ETH address of the current wallet, using the {@link EthereumWrapper} class.
      *
      * @return kETH address formatted as string (and prefixed with '0x'.
      */
     private String getWalletAddress() {
-        return Web3jwrapper.getWalletAddress(mWalletFileName, getApplicationContext());
+        return EthereumWrapper.getWalletAddress(mWalletFileName, getApplicationContext());
     }
 
     /**
-     * Updates eth balance of the current address, using the {@link Web3jwrapper} class.
+     * Updates eth balance of the current address, using the {@link EthereumWrapper} class.
      * <p>
      * Runs on a new thread, to avoid blocking UI.
      */
@@ -174,7 +169,7 @@ public class MainActivity extends Activity implements WalletPickFragment.OnFragm
             @Override
             public void run() {
 
-                BigInteger bal = Web3jwrapper.getAddressBalance(getWalletAddress());
+                BigInteger bal = EthereumWrapper.getAddressBalance(getWalletAddress());
 
                 FragmentUpdateListener pusher = (FragmentUpdateListener) getFragmentManager()
                         .findFragmentByTag(Constants.DEPLOY_FRAGMENT_TAG);
@@ -192,7 +187,7 @@ public class MainActivity extends Activity implements WalletPickFragment.OnFragm
     }
 
     /**
-     * Deploys new contract using {@link Web3jwrapper} class.
+     * Deploys new contract using {@link EthereumWrapper} class.
      * <p>
      * Since network communication is needed, the contract is deployed on a new separate thread, so
      * that UI is not blocked.
@@ -203,7 +198,7 @@ public class MainActivity extends Activity implements WalletPickFragment.OnFragm
         new Thread(new Runnable() {
             @Override
             public void run() {
-                setmTransactionHash(Web3jwrapper.deployContract(getApplicationContext(), mWalletFileName, mTradeDeal));
+                setmTransactionHash(EthereumWrapper.deployContract(getApplicationContext(), mWalletFileName, mTradeDeal));
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -225,8 +220,13 @@ public class MainActivity extends Activity implements WalletPickFragment.OnFragm
         }).start();
     }
 
+    /**
+     * Attaches Value event listener from {@link FirebaseWrapper} class.
+     *
+     * @return ValueEventListener. This is needed to later dis-attach the listener.
+     */
     public void updateOffers() {
-        mValueEventListener = FirebaseWrapper.fetchExistingOffers(this);
+        FirebaseWrapper.fetchExistingOffers(this);
     }
 
     public TradeDeal getmTradeDeal() {
@@ -253,6 +253,9 @@ public class MainActivity extends Activity implements WalletPickFragment.OnFragm
         this.mExistingOffer = mExistingOffer;
     }
 
+    /**
+     * Interface used to pushed new info to fragments.
+     */
     public interface FragmentUpdateListener {
         void pushUpdate(Bundle args);
     }

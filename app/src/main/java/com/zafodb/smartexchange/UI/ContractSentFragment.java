@@ -13,11 +13,14 @@ import com.zafodb.smartexchange.Constants;
 import com.zafodb.smartexchange.MainActivity;
 import com.zafodb.smartexchange.R;
 
+import org.spongycastle.crypto.agreement.srp.SRP6Client;
+
 public class ContractSentFragment extends CustomFragment implements MainActivity.FragmentUpdateListener {
 
     private WalletPickFragment.OnFragmentInteractionListener mListener;
 
     TextView txHashView;
+    TextView txHyperlinkView;
 
     public static ContractSentFragment newInstance() {
         return new ContractSentFragment();
@@ -34,6 +37,7 @@ public class ContractSentFragment extends CustomFragment implements MainActivity
         super.onViewCreated(view, savedInstanceState);
 
         txHashView = view.findViewById(R.id.textContractTxHash);
+        txHyperlinkView = view.findViewById(R.id.textTxHyperlink);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -62,7 +66,11 @@ public class ContractSentFragment extends CustomFragment implements MainActivity
 
     @Override
     public void pushUpdate(Bundle args) {
-        txHashView.setText(args.getString(Constants.TRANSACTION_HASH));
+        String txHash = args.getString(Constants.TRANSACTION_HASH);
+
+        txHashView.setText(txHash);
+
+        txHyperlinkView.setText(Constants.ETHERSCAN_KOVAN_REFERENCE + txHash);
     }
 
     @Override

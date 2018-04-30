@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.zafodb.smartexchange.Constants;
-import com.zafodb.smartexchange.SmartExchange1;
+import com.zafodb.smartexchange.SmartExchange2;
 import com.zafodb.smartexchange.TradeDeal;
 import com.zafodb.smartexchange.ValidationException;
 
@@ -14,11 +14,8 @@ import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.Web3jFactory;
 import org.web3j.protocol.core.DefaultBlockParameterName;
-import org.web3j.protocol.core.methods.request.EthFilter;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
-import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
-import org.web3j.protocol.core.methods.response.EthLog;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 
@@ -26,100 +23,21 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class Web3jwrapper {
+/**
+ * This class handles all the functionality that has too do with Ethereum and Web3j. This could be
+ * verifying an address, deploying contract or converting Wei to Ether.
+ */
+public class EthereumWrapper {
 
     private final static Web3j web3j;
-
-//    static DieselPrice dieselDeploy;
 
     static {
 //        web3j = Web3jFactory.build(new HttpService("https://kovan.infura.io/ROrdzkoD6Ua0TH7cyaSh"));
 //        web3j = Web3jFactory.build(new HttpService("https://kovan.infura.io/IlXkpW67R8mNHL0HDIdO"));
         web3j = Web3jFactory.build(new HttpService(Constants.INFURA_NODE_URL));
     }
-
-
-//    static String getClientVerison() {
-//
-//        try {
-//            Web3ClientVersion web3ClientVersion = web3j.web3ClientVersion().sendAsync().get();
-//            return web3ClientVersion.getWeb3ClientVersion();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        return null;
-//    }
-
-//    static BigInteger getBlockNumber() {
-//        try {
-//            EthBlockNumber blockNo = web3j.ethBlockNumber().sendAsync().get();
-//            return blockNo.getBlockNumber();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
-
-//    static String deployReadyContractTest(Context context) {
-//
-//        try {
-//            Credentials credentials = WalletUtils.loadCredentials("aaa", context.getFilesDir().getPath() + "/" + "UTC--2018-04-14T17-19-50.144--00f42f5423f199998c48a50b9ec39df44e36836b.json");
-//
-//            DieselPrice dieselDeploy = DieselPrice.deploy(
-//                    web3j,
-//                    credentials,
-//                    new BigInteger("30000000000"),
-//                    new BigInteger("3000000"),
-//                    BigInteger.ZERO, BigInteger.valueOf(402)).sendAsync().get();
-//
-//            return "success";
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return "failed";
-//        }
-
-//        byte[] bytes;
-//        try {
-//            bytes = Files.readAllBytes(Paths.get(context.getFilesDir().getPath() + "/" + "diesel.bin"));
-//
-//            Credentials credentials = WalletUtils.loadCredentials("aaa", context.getFilesDir().getPath() + "/" + "UTC--2018-04-14T17-19-50.144--00f42f5423f199998c48a50b9ec39df44e36836b.json");
-//
-//            Log.e("FILIP", "Check 0");
-//
-//            Transaction transaction = Transaction.createContractTransaction(
-//                    credentials.getAddress(),
-//                    getNonce(credentials.getAddress()),
-//                    new BigInteger("30000000000"),
-//                    new BigInteger("40000"),
-//                    BigInteger.ZERO,
-//                    new String(bytes));
-//
-//            Log.e("FILIP", "Check 1");
-//            EthSendTransaction transactionResponse = web3j.send .ethSendTransaction(transaction).sendAsync().get();
-//
-//
-//            return transactionResponse.getmTransactionHash();
-//        } catch (ClientConnectionException ce) {
-//            Log.e("FILIP", "Check 2");
-//            ce.getCause();
-//            ce.getLocalizedMessage();
-//        } catch (ExecutionException ee) {
-//            ee.getLocalizedMessage();
-//            ee.printStackTrace();
-//
-//        } catch (Exception e) {
-//            Log.e("FILIP", "Check 3");
-//            e.printStackTrace();
-//        }
-//
-//
-//        return "failed";
-//    }
 
     /**
      * Creates and sends contract to the network. Unlocks the wallet file from the cache and uses
@@ -141,7 +59,7 @@ public class Web3jwrapper {
         try {
             Credentials credentials = WalletUtils.loadCredentials("aaa", context.getCacheDir().getPath() + "/" + walletFilename);
 
-            SmartExchange1 smartExchange1 = SmartExchange1.deploy(
+            SmartExchange2 smartExchange = SmartExchange2.deploy(
                     web3j,
                     credentials,
                     new BigInteger("30000000000"),
@@ -153,7 +71,7 @@ public class Web3jwrapper {
                     .sendAsync()
                     .get();
 
-            TransactionReceipt receipt = smartExchange1.getTransactionReceipt();
+            TransactionReceipt receipt = smartExchange.getTransactionReceipt();
 
             return receipt.getTransactionHash();
 
@@ -173,91 +91,56 @@ public class Web3jwrapper {
         }
     }
 
-//    static String invokeDieselPriceUpdate(Context context) {
+    /* Method used during developement */
+//    public static String createNewFilter() {
+//        EthFilter myFilter = new EthFilter(DefaultBlockParameterName.EARLIEST, DefaultBlockParameterName.LATEST, "0xdDb813cC954994180edcF50aa9b3532e428Ac35E");
+//
+////        web3j.ethNewFilter(myFilter)
+//
+//        String output = "";
 //
 //        try {
-//            Credentials credentials = WalletUtils.loadCredentials("aaa", context.getFilesDir().getPath() + "/" + "UTC--2018-04-14T17-19-50.144--00f42f5423f199998c48a50b9ec39df44e36836b.json");
+//            EthLog myLogs = web3j.ethGetLogs(myFilter).sendAsync().get();
 //
-//            DieselPrice contract = DieselPrice.load(
-//                    "0xdDb813cC954994180edcF50aa9b3532e428Ac35E",
-//                    web3j,
-//                    credentials,
-//                    new BigInteger("30000000000"),
-//                    new BigInteger("7000000"));
+//            List results = myLogs.getLogs();
 //
-//            TransactionReceipt transactionReceipt = contract.update(BigInteger.ZERO).sendAsync().get();
-//
-//            List eventValues = contract.getNewOraclizeQueryEvents(transactionReceipt);
-//            String out = "";
+//            List<String> transactions = new ArrayList<String>();
 //
 //
-//            for (Object l : eventValues) {
+//            for (Object result : results) {
+//                EthLog.LogResult res = (EthLog.LogResult) result;
 //
-//                DieselPrice.NewOraclizeQueryEventResponse response = (DieselPrice.NewOraclizeQueryEventResponse) l;
+//                EthLog.LogObject myObj = (EthLog.LogObject) res.get();
 //
-//                Log.d("FILIP", response.description);
-//                out = out + " " + response.description + " " + response.log;
+//                transactions.add(myObj.getTransactionHash());
+//
 //            }
 //
-//            return out;
-////            return transactionReceipt.getmTransactionHash();
+//            for (String txHash : transactions) {
+//                EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(txHash).sendAsync().get();
+//                TransactionReceipt txRecpt = transactionReceipt.getTransactionReceipt();
+//
+//                List txLogs = txRecpt.getLogs();
+//
+//                for (Object myLog : txLogs) {
+//                    org.web3j.protocol.core.methods.response.Log oneLog = (org.web3j.protocol.core.methods.response.Log) myLog;
+//
+//                    output = output + " " + oneLog.getData();
+//                }
+//            }
 //
 //        } catch (Exception e) {
+//
 //            e.printStackTrace();
-//            return "Failed to invoke price update";
+//            return "failed to get logs";
+//
 //        }
+//
+//
+//        return output;
 //    }
 
-    public static String createNewFilter() {
-        EthFilter myFilter = new EthFilter(DefaultBlockParameterName.EARLIEST, DefaultBlockParameterName.LATEST, "0xdDb813cC954994180edcF50aa9b3532e428Ac35E");
-
-//        web3j.ethNewFilter(myFilter)
-
-        String output = "";
-
-        try {
-            EthLog myLogs = web3j.ethGetLogs(myFilter).sendAsync().get();
-
-            List results = myLogs.getLogs();
-
-            List<String> transactions = new ArrayList<String>();
-
-
-            for (Object result : results) {
-                EthLog.LogResult res = (EthLog.LogResult) result;
-
-                EthLog.LogObject myObj = (EthLog.LogObject) res.get();
-
-                transactions.add(myObj.getTransactionHash());
-
-            }
-
-
-            for (String txHash : transactions) {
-                EthGetTransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt(txHash).sendAsync().get();
-
-                TransactionReceipt txRecpt = transactionReceipt.getTransactionReceipt();
-
-                List txLogs = txRecpt.getLogs();
-
-                for (Object myLog : txLogs) {
-                    org.web3j.protocol.core.methods.response.Log oneLog = (org.web3j.protocol.core.methods.response.Log) myLog;
-
-                    output = output + " " + oneLog.getData();
-                }
-            }
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-            return "failed to get logs";
-
-        }
-
-
-        return output;
-    }
-
+    // TODO: revisit this method.
     static String createNewWallet(Context context) {
 //        TODO Remove temporary password.
         try {
@@ -271,6 +154,7 @@ public class Web3jwrapper {
         }
     }
 
+//    TODO: revisit this method.
     public static String getWalletAddress(String walletFilename, Context context) {
         try {
             Credentials creds = WalletUtils.loadCredentials("aaa", context.getCacheDir().getPath() + "/" + walletFilename);
@@ -287,16 +171,13 @@ public class Web3jwrapper {
     /**
      * Checks balance of queried address.
      *
-     * @param address Ethereu address to check.
+     * @param address Ethereum address to check.
      * @return Balance in Wei.
-     * <p>
+     *
      * TODO: Do proper error handling.
      */
     public static BigInteger getAddressBalance(String address) {
 //        TODO remove temporary
-//        TEMPORARY arrangement
-//       address = "0x967587b42d9425fa2c8d01de0dc8da00eb246804";
-//       address = "0x00f42f5423f199998c48a50b9ec39df44e36836b";
         address = "0x12eFbeE9BBE117EEf08190d5e144FD4D168421A5";
 
         try {
@@ -321,7 +202,7 @@ public class Web3jwrapper {
     }
 
     /**
-     * Converts amount of Wei (supplied by getBalance method) to user-readable format (Ether).
+     * Converts amount of Wei to user-readable format (Ether) with desired number of decimals..
      *
      * @param wei      Address balance in Wei.
      * @param decimals Decimals displayed in result.
@@ -339,6 +220,13 @@ public class Web3jwrapper {
         return out + " kETH";
     }
 
+    /**
+     * Converts amount of Ether supplied in String to Wei and turns it to BigInteger.
+     * @param ethAsString User-supplied amount of Ether as String. Can contain decimals.
+     * @return BigInteger of Wei.
+     * @throws ValidationException This is thrown when the amount supplied cannot be converted to
+     * BigInteger or if the amount is smaller than 0 Wei.
+     */
     public static BigInteger stringToWei(String ethAsString) throws ValidationException {
         try {
             BigDecimal eth = new BigDecimal(ethAsString);
@@ -357,6 +245,7 @@ public class Web3jwrapper {
         }
     }
 
+//    TODO: revisit this method.
     static BigInteger getNonce(String address) {
 
         EthGetTransactionCount nonce;
@@ -367,10 +256,8 @@ public class Web3jwrapper {
                     .get();
 
             return nonce.getTransactionCount();
-
         } catch (Exception e) {
             e.printStackTrace();
-
             return null;
         }
     }

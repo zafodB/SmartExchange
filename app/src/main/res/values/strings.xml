@@ -43,5 +43,13 @@
     <string name="text_status_conf2">You confirmed. Waiting for their response.</string>
     <string name="text_status_accepted">The offer has been accepted. Send Bitcoins to this address:</string>
     <string name="label_units_btc">BTC</string>
+    <string name="label_refresh">Refresh</string>
+    <string name="label_new">New</string>
+    <string name="label_eth_amount">ETH amount</string>
+    <string name="label_btc_amount">BTC amount</string>
+    <string name="label_nickname">Nickname</string>
+    <string name="label_no_offers">Unfortunately, there are no available offers at the moment.</string>
+    <string name="label_confirm">Confirm</string>
+    <string name="label_offers">Offers</string>
 
 </resources>

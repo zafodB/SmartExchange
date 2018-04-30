@@ -22,8 +22,8 @@ import com.zafodb.smartexchange.Constants;
 import com.zafodb.smartexchange.MainActivity;
 import com.zafodb.smartexchange.R;
 import com.zafodb.smartexchange.ValidationException;
-import com.zafodb.smartexchange.Wrappers.BitcoinjWrapper;
-import com.zafodb.smartexchange.Wrappers.Web3jwrapper;
+import com.zafodb.smartexchange.Wrappers.BitcoinWrapper;
+import com.zafodb.smartexchange.Wrappers.EthereumWrapper;
 
 import java.math.BigInteger;
 
@@ -122,10 +122,10 @@ public class CreateOfferFragment extends CustomFragment {
     private boolean validateInput(){
         try{
             newOffer.setAmountSatoshiOffered(btcAmount.getText().toString());
-            newOffer.setAmountWeiWanted(Web3jwrapper.stringToWei(ethAmount.getText().toString()));
+            newOffer.setAmountWeiWanted(EthereumWrapper.stringToWei(ethAmount.getText().toString()));
 
             String destinationEthAddress = ethAddress.getText().toString();
-            if (!Web3jwrapper.validateAddress(destinationEthAddress)){
+            if (!EthereumWrapper.validateAddress(destinationEthAddress)){
                 throw new ValidationException("Eth address is not valid.");
             } else {
                 newOffer.setDestinationEthAddress(destinationEthAddress);
@@ -145,7 +145,7 @@ public class CreateOfferFragment extends CustomFragment {
     private void updateUi(){
         BigInteger satoshi = newOffer.getAmountSatoshiOffered();
         if (satoshi != null){
-            btcAmount.setText(BitcoinjWrapper.satoshiToBtcString(satoshi, 4));
+            btcAmount.setText(BitcoinWrapper.satoshiToBtcString(satoshi, 4));
         }
 
         String ethAddress = newOffer.getDestinationEthAddress();
@@ -160,7 +160,7 @@ public class CreateOfferFragment extends CustomFragment {
 
         BigInteger wei = newOffer.getAmountWeiWanted();
         if (wei != null){
-            ethAmount.setText(Web3jwrapper.weiToString(wei, 4));
+            ethAmount.setText(EthereumWrapper.weiToString(wei, 4));
         }
     }
 

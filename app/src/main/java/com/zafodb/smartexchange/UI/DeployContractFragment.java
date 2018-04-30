@@ -24,9 +24,9 @@ import com.zafodb.smartexchange.MainActivity;
 import com.zafodb.smartexchange.R;
 import com.zafodb.smartexchange.TradeDeal;
 import com.zafodb.smartexchange.ValidationException;
-import com.zafodb.smartexchange.Wrappers.BitcoinjWrapper;
+import com.zafodb.smartexchange.Wrappers.BitcoinWrapper;
+import com.zafodb.smartexchange.Wrappers.EthereumWrapper;
 import com.zafodb.smartexchange.Wrappers.FirebaseWrapper;
-import com.zafodb.smartexchange.Wrappers.Web3jwrapper;
 
 import java.math.BigInteger;
 
@@ -96,7 +96,7 @@ public class DeployContractFragment extends CustomFragment implements MainActivi
 
         BigInteger satoshis = tradeDeal.getAmountSatoshi();
         if (satoshis != null){
-            textBtcAmount.setText(BitcoinjWrapper.satoshiToBtcString(satoshis, 4));
+            textBtcAmount.setText(BitcoinWrapper.satoshiToBtcString(satoshis, 4));
         }
         String ethAddress = tradeDeal.getDestinationEthAddress();
         if (ethAddress != null){
@@ -183,7 +183,7 @@ public class DeployContractFragment extends CustomFragment implements MainActivi
             ethBalance.setText("Error");
         } else {
 
-            ethBalance.setText(Web3jwrapper.weiToString(balance, Constants.BALANCE_DISPLAY_DECIMALS));
+            ethBalance.setText(EthereumWrapper.weiToString(balance, Constants.BALANCE_DISPLAY_DECIMALS));
         }
     }
 

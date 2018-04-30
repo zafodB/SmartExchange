@@ -4,7 +4,7 @@ import com.zafodb.smartexchange.UI.DeployContractFragment;
 import com.zafodb.smartexchange.UI.OfferStatusFragment;
 import com.zafodb.smartexchange.UI.ValidateDeployFragment;
 import com.zafodb.smartexchange.UI.WalletPickFragment;
-import com.zafodb.smartexchange.Wrappers.Web3jwrapper;
+import com.zafodb.smartexchange.Wrappers.EthereumWrapper;
 
 public class Constants {
 
@@ -23,7 +23,6 @@ public class Constants {
     public static final int DELETE_OWN_OFFER = 574;
     public static final int REMOVE_VALUE_EVENT_LISTENER = 575;
 
-
     /**
      * Fragment tags.
      */
@@ -36,7 +35,6 @@ public class Constants {
     public static final String OFFER_STATUS_FRAGMENT_TAG = "offerStatusFragTag";
     public static final String CONFIRM_DIALOG_TAG = "ConfirmDialogFragTag";
 
-
     /**
      * General bundle parameter labels.
      */
@@ -45,7 +43,6 @@ public class Constants {
     public static final String OFFERS_LIST = "btcOffers";
     public static final String BTC_OFFER_TAG = "newBtcOffer";
     public static final String OFFER_STATUS_TAG = "offerStatusChanged";
-
 
     /**
      * Argument names for {@link DeployContractFragment} fragment.
@@ -85,10 +82,8 @@ public class Constants {
     public static final long DATA_STATUS_YOU_CONFIRMED = 13;
     public static final long DATA_STATUS_ACCEPTED = 14;
 
-
-
     /**
-     * {@link Web3jwrapper} constants.
+     * {@link EthereumWrapper} constants.
      */
     public static final String INFURA_NODE_URL = "https://kovan.infura.io/Ceux1wHF7EsQWKb9p8da";
 //    Alternative URLS (for reference).
@@ -100,4 +95,5 @@ public class Constants {
     public static final String WEIS_IN_ETHER = "1000000000000000000";
     public static final String SATOSHIS_IN_BTC = "100000000";
 
+    public static final String ETHERSCAN_KOVAN_REFERENCE = "https://kovan.etherscan.io/tx/";
 }
