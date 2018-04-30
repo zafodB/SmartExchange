@@ -42,5 +42,6 @@
     <string name="text_status_conf1">Someone accepted your offer. Please confirm.</string>
     <string name="text_status_conf2">You confirmed. Waiting for their response.</string>
     <string name="text_status_accepted">The offer has been accepted. Send Bitcoins to this address:</string>
+    <string name="label_units_btc">BTC</string>
 
 </resources>

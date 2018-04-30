@@ -2,7 +2,6 @@ package com.zafodb.smartexchange.UI;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.annotation.Nullable;
@@ -22,14 +21,15 @@ import com.zafodb.smartexchange.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OffersFragment extends Fragment implements MainActivity.FragmentUpdateListener, OfferAdapter.RecyclerViewClickListener {
+public class OffersFragment extends CustomFragment implements MainActivity.FragmentUpdateListener, OfferAdapter.RecyclerViewClickListener {
 
-    private WalletPick.OnFragmentInteractionListener mListener;
+    private WalletPickFragment.OnFragmentInteractionListener mListener;
 
     RecyclerView mRecyclerView;
     RecyclerView.LayoutManager mLayoutManager;
     OfferAdapter mAdapter;
     TextView noOffers;
+    int mPositionClicked;
 
 
     public static OffersFragment newInstance() {
@@ -66,6 +66,8 @@ public class OffersFragment extends Fragment implements MainActivity.FragmentUpd
         continueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                MainActivity activity = (MainActivity) getActivity();
+                activity.setmExistingOffer(mAdapter.getOfferAtPosition(mPositionClicked));
                 onButtonPressed(Constants.FROM_OFFERS_TO_WALLETPICK);
             }
         });
@@ -99,8 +101,8 @@ public class OffersFragment extends Fragment implements MainActivity.FragmentUpd
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof WalletPick.OnFragmentInteractionListener) {
-            mListener = (WalletPick.OnFragmentInteractionListener) context;
+        if (context instanceof WalletPickFragment.OnFragmentInteractionListener) {
+            mListener = (WalletPickFragment.OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -131,10 +133,17 @@ public class OffersFragment extends Fragment implements MainActivity.FragmentUpd
         for (int childCount = mRecyclerView.getChildCount(), i = 0; i < childCount; ++i) {
 
             OfferAdapter.ViewHolder holder = (OfferAdapter.ViewHolder) mRecyclerView.getChildViewHolder(mRecyclerView.getChildAt(i));
-
             if (i != position) {
                 holder.itemView.setBackgroundColor(Color.WHITE);
             }
         }
+
+        mPositionClicked = position;
+//
+    }
+
+    @Override
+    public String getFragmentTag() {
+        return Constants.OFFER_STATUS_FRAGMENT_TAG;
     }
 }

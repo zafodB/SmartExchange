@@ -1,6 +1,7 @@
 package com.zafodb.smartexchange.Wrappers;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,6 +22,7 @@ import com.zafodb.smartexchange.BtcOffer;
 import com.zafodb.smartexchange.Constants;
 import com.zafodb.smartexchange.MainActivity;
 import com.zafodb.smartexchange.UI.ConfirmDialogFragment;
+import com.zafodb.smartexchange.UI.CustomFragment;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -76,7 +78,7 @@ public class FirebaseWrapper {
         ref.child(offer.getOfferId().toString()).removeValue();
     }
 
-    public static ValueEventListener getOfferStatus(final Activity activity, BtcOffer offer) {
+    public static ValueEventListener getOfferStatus(final Activity activity, final CustomFragment fragment, BtcOffer offer) {
         DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS);
 
         ValueEventListener listener = new ValueEventListener() {
@@ -85,7 +87,7 @@ public class FirebaseWrapper {
                 MainActivity.FragmentUpdateListener pusher =
                         (MainActivity.FragmentUpdateListener) activity
                                 .getFragmentManager()
-                                .findFragmentByTag(Constants.OFFER_STATUS_FRAGMENT_TAG);
+                                .findFragmentByTag(fragment.getFragmentTag());
 
                 Long temp = (Long) dataSnapshot.child(Constants.DATA_OFFER_STATUS).getValue();
                 int status = temp.intValue();
@@ -106,26 +108,23 @@ public class FirebaseWrapper {
         return listener;
     }
 
-    public static void removeOfferDataValueListener(BtcOffer offer, ValueEventListener listener){
+    public static void removeOfferDataValueListener(BtcOffer offer, ValueEventListener listener) {
         DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS);
-
         ref.child(offer.getOfferId().toString()).removeEventListener(listener);
-
     }
 
     public static void confirmBtcOfferFirst(BtcOffer offer) {
         DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS).child(offer.getOfferId().toString());
-        ref.child(Constants.DATA_OFFER_STATUS).setValue(Constants.DATA_STATUS_YOU_CONFIRMED);
+        ref.child(Constants.DATA_OFFER_STATUS).setValue(Constants.DATA_STATUS_THEY_CONFIRMED);
     }
 
     public static void confirmBtcOfferSecond(BtcOffer offer) {
         DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS).child(offer.getOfferId().toString());
-        ref.child(Constants.DATA_OFFER_STATUS).setValue(Constants.DATA_STATUS_THEY_CONFIRMED);
+        ref.child(Constants.DATA_OFFER_STATUS).setValue(Constants.DATA_STATUS_YOU_CONFIRMED);
     }
 
     public static ValueEventListener fetchExistingOffers(final Activity activity) {
         DatabaseReference ref = fireData.getReference();
-//
         ValueEventListener listener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -135,12 +134,14 @@ public class FirebaseWrapper {
 
                     Long status = (Long) databaseOffer.child(Constants.DATA_OFFER_STATUS).getValue();
                     if (status != null) {
+                        String uuid = databaseOffer.getKey();
+
                         int offerStatus = status.intValue();
                         if (offerStatus != Constants.DATA_STATUS_NEW) {
                             continue;
                         }
 
-                        BigInteger satoshiOffered =  new BigInteger((String) databaseOffer
+                        BigInteger satoshiOffered = new BigInteger((String) databaseOffer
                                 .child(Constants.DATA_OFFER_BTC)
                                 .getValue());
                         BigInteger weiWanted = new BigInteger((String) databaseOffer
@@ -153,7 +154,7 @@ public class FirebaseWrapper {
                                 .child(Constants.DATA_OFFER_NICKNAME)
                                 .getValue();
 
-                        BtcOffer offer = new BtcOffer(satoshiOffered, weiWanted, ethAddress, nickname);
+                        BtcOffer offer = new BtcOffer(uuid, satoshiOffered, weiWanted, ethAddress, nickname);
 
                         offers.add(offer);
                     }
@@ -209,7 +210,7 @@ public class FirebaseWrapper {
 //        return offers;
     }
 
-    public static void removeOffersListener(ValueEventListener listener){
+    public static void removeOffersListener(ValueEventListener listener) {
         DatabaseReference ref = fireData.getReference();
 //
         ref.child(Constants.DATA_BTC_OFFERS).removeEventListener(listener);

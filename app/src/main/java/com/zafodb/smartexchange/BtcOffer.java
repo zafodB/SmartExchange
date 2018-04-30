@@ -34,6 +34,15 @@ public class BtcOffer implements Serializable{
         nickname = name;
     }
 
+    public BtcOffer(String uuid, BigInteger satoshi, BigInteger wei, String address, String name){
+        offerId = UUID.fromString(uuid);
+
+        amountSatoshiOffered = satoshi;
+        amountWeiWanted = wei;
+        destinationEthAddress = address;
+        nickname = name;
+    }
+
     public UUID getOfferId() {
         return offerId;
     }

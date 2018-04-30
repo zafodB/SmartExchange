@@ -3,7 +3,6 @@ package com.zafodb.smartexchange.UI;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,9 +27,9 @@ import com.zafodb.smartexchange.Wrappers.Web3jwrapper;
 
 import java.math.BigInteger;
 
-public class CreateOfferFragment extends Fragment {
+public class CreateOfferFragment extends CustomFragment {
 
-    private WalletPick.OnFragmentInteractionListener mListener;
+    private WalletPickFragment.OnFragmentInteractionListener mListener;
 
     BtcOffer newOffer;
 
@@ -95,7 +94,7 @@ public class CreateOfferFragment extends Fragment {
                 case Constants.CREATE_NEW_OFFER:
                     if (validateInput()) {
                         MainActivity mActivity = (MainActivity) getActivity();
-                        mActivity.setmOffer(newOffer);
+                        mActivity.setmNewOffer(newOffer);
                         mListener.onFragmentInteraction(interactionCase);
                     }
                     break;
@@ -106,8 +105,8 @@ public class CreateOfferFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof WalletPick.OnFragmentInteractionListener) {
-            mListener = (WalletPick.OnFragmentInteractionListener) context;
+        if (context instanceof WalletPickFragment.OnFragmentInteractionListener) {
+            mListener = (WalletPickFragment.OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -196,4 +195,8 @@ public class CreateOfferFragment extends Fragment {
         } else super.onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    public String getFragmentTag() {
+        return Constants.CREATE_OFFER_TAG;
+    }
 }

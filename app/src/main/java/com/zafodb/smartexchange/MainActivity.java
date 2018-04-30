@@ -8,14 +8,13 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.google.firebase.database.ValueEventListener;
-import com.zafodb.smartexchange.UI.ContractSent;
+import com.zafodb.smartexchange.UI.ContractSentFragment;
 import com.zafodb.smartexchange.UI.CreateOfferFragment;
-import com.zafodb.smartexchange.UI.DeployContract;
-import com.zafodb.smartexchange.UI.OfferAdapter;
-import com.zafodb.smartexchange.UI.OfferStatus;
+import com.zafodb.smartexchange.UI.DeployContractFragment;
+import com.zafodb.smartexchange.UI.OfferStatusFragment;
 import com.zafodb.smartexchange.UI.OffersFragment;
-import com.zafodb.smartexchange.UI.ValidateDeploy;
-import com.zafodb.smartexchange.UI.WalletPick;
+import com.zafodb.smartexchange.UI.ValidateDeployFragment;
+import com.zafodb.smartexchange.UI.WalletPickFragment;
 import com.zafodb.smartexchange.Wrappers.FirebaseWrapper;
 import com.zafodb.smartexchange.Wrappers.Web3jwrapper;
 
@@ -23,14 +22,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.List;
 
-public class MainActivity extends Activity implements WalletPick.OnFragmentInteractionListener {
+public class MainActivity extends Activity implements WalletPickFragment.OnFragmentInteractionListener {
 
     private TradeDeal mTradeDeal;
-    private BtcOffer mOffer;
+    private BtcOffer mNewOffer;
+    private BtcOffer mExistingOffer;
 
     private String mTransactionHash;
     private String mWalletFileName;
@@ -60,10 +58,10 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
             case Constants.FROM_OFFERS_TO_WALLETPICK:
 //                  TODO: Handle what offer was picked.
 //                  TODO: see, if this is placed in a good spot.
-                openNewFragment(WalletPick.newInstance(getWalletAddress()), Constants.WALLET_PICK_FRAGMENT_TAG);
+                openNewFragment(WalletPickFragment.newInstance(getWalletAddress()), Constants.WALLET_PICK_FRAGMENT_TAG);
                 break;
             case Constants.FROM_WALLET_PICK_TO_DEPLOY:
-                openNewFragment(DeployContract.newInstance(), Constants.DEPLOY_FRAGMENT_TAG);
+                openNewFragment(DeployContractFragment.newInstance(mExistingOffer), Constants.DEPLOY_FRAGMENT_TAG);
                 break;
             case Constants.ETH_BALANCE_UPDATE:
                 updateEthBalance();
@@ -72,10 +70,10 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
                 onBackPressed();
                 break;
             case Constants.FROM_DEPLOY_TO_VALIDATE:
-                openNewFragment(ValidateDeploy.newInstance(getmTradeDeal()), Constants.VALIDATE_FRAGMENT_TAG);
+                openNewFragment(ValidateDeployFragment.newInstance(getmTradeDeal(), mExistingOffer), Constants.VALIDATE_FRAGMENT_TAG);
                 break;
             case Constants.VALIDATION_SUCCESSFUL:
-                openNewFragment(ContractSent.newInstance(), Constants.SENT_FRAGMENT_TAG);
+                openNewFragment(ContractSentFragment.newInstance(), Constants.SENT_FRAGMENT_TAG);
                 deployContract();
                 break;
             case Constants.OFFERS_UPDATE:
@@ -85,8 +83,8 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
                 openNewFragment(CreateOfferFragment.newInstance(), Constants.CREATE_OFFER_TAG);
                 break;
             case Constants.CREATE_NEW_OFFER:
-                FirebaseWrapper.createBtcOffer(mOffer);
-                openNewFragment(OfferStatus.newInstance(mOffer), Constants.OFFER_STATUS_FRAGMENT_TAG);
+                FirebaseWrapper.createBtcOffer(mNewOffer);
+                openNewFragment(OfferStatusFragment.newInstance(mNewOffer), Constants.OFFER_STATUS_FRAGMENT_TAG);
                 break;
             case Constants.REMOVE_VALUE_EVENT_LISTENER:
                 FirebaseWrapper.removeOffersListener(mValueEventListener);
@@ -95,13 +93,13 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
 
     /**
      * If user presses back button after they just sent the contract, this method will prevent
-     * {@link ValidateDeploy} from showing (to prevent accidental double-deploy.
+     * {@link ValidateDeployFragment} from showing (to prevent accidental double-deploy.
      */
     @Override
     public void onBackPressed() {
-        ValidateDeploy fragment = (ValidateDeploy) getFragmentManager().findFragmentByTag(Constants.VALIDATE_FRAGMENT_TAG);
+        ValidateDeployFragment fragment = (ValidateDeployFragment) getFragmentManager().findFragmentByTag(Constants.VALIDATE_FRAGMENT_TAG);
         if (fragment != null) {
-            getFragmentManager().popBackStack(ValidateDeploy.class.getName(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            getFragmentManager().popBackStack(WalletPickFragment.class.getName(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
         } else {
             CreateOfferFragment fragment1 = (CreateOfferFragment) getFragmentManager().findFragmentByTag(Constants.CREATE_OFFER_TAG);
 
@@ -243,12 +241,16 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
         return mTransactionHash;
     }
 
-    public void setmOffer(BtcOffer mOffer) {
-        this.mOffer = mOffer;
+    public void setmNewOffer(BtcOffer mNewOffer) {
+        this.mNewOffer = mNewOffer;
     }
 
     public void setmTransactionHash(String mTransactionHash) {
         this.mTransactionHash = mTransactionHash;
+    }
+
+    public void setmExistingOffer(BtcOffer mExistingOffer) {
+        this.mExistingOffer = mExistingOffer;
     }
 
     public interface FragmentUpdateListener {

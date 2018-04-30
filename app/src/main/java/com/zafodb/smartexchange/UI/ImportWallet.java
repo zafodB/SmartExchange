@@ -13,7 +13,7 @@ import com.zafodb.smartexchange.R;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link WalletPick.OnFragmentInteractionListener} interface
+ * {@link WalletPickFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link ImportWallet#newInstance} factory method to
  * create an instance of this fragment.
@@ -28,7 +28,7 @@ public class ImportWallet extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private WalletPick.OnFragmentInteractionListener mListener;
+    private WalletPickFragment.OnFragmentInteractionListener mListener;
 
     public ImportWallet() {
         // Required empty public constructor
@@ -78,8 +78,8 @@ public class ImportWallet extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof WalletPick.OnFragmentInteractionListener) {
-            mListener = (WalletPick.OnFragmentInteractionListener) context;
+        if (context instanceof WalletPickFragment.OnFragmentInteractionListener) {
+            mListener = (WalletPickFragment.OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");

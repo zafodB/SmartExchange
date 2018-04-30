@@ -19,7 +19,7 @@ import com.zafodb.smartexchange.MainActivity;
 import com.zafodb.smartexchange.R;
 import com.zafodb.smartexchange.Wrappers.FirebaseWrapper;
 
-public class OfferStatus extends Fragment implements MainActivity.FragmentUpdateListener, ConfirmDialogFragment.NoticeDialogListener {
+public class OfferStatusFragment extends CustomFragment implements MainActivity.FragmentUpdateListener, ConfirmDialogFragment.NoticeDialogListener {
 
     private BtcOffer mOffer;
 
@@ -27,10 +27,10 @@ public class OfferStatus extends Fragment implements MainActivity.FragmentUpdate
     private Button continueButton;
     private ValueEventListener mValueEventListener;
 
-    private WalletPick.OnFragmentInteractionListener mListener;
+    private WalletPickFragment.OnFragmentInteractionListener mListener;
 
-    public static OfferStatus newInstance(BtcOffer offer) {
-        OfferStatus fragment = new OfferStatus();
+    public static OfferStatusFragment newInstance(BtcOffer offer) {
+        OfferStatusFragment fragment = new OfferStatusFragment();
         Bundle args = new Bundle();
         args.putSerializable(Constants.BTC_OFFER_PARAM1, offer);
         fragment.setArguments(args);
@@ -44,7 +44,7 @@ public class OfferStatus extends Fragment implements MainActivity.FragmentUpdate
             mOffer = (BtcOffer) getArguments().getSerializable(Constants.BTC_OFFER_PARAM1);
         }
 
-        mValueEventListener = FirebaseWrapper.getOfferStatus(getActivity(), mOffer);
+        mValueEventListener = FirebaseWrapper.getOfferStatus(getActivity(), this, mOffer);
     }
 
     @Override
@@ -89,8 +89,8 @@ public class OfferStatus extends Fragment implements MainActivity.FragmentUpdate
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof WalletPick.OnFragmentInteractionListener) {
-            mListener = (WalletPick.OnFragmentInteractionListener) context;
+        if (context instanceof WalletPickFragment.OnFragmentInteractionListener) {
+            mListener = (WalletPickFragment.OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -134,11 +134,16 @@ public class OfferStatus extends Fragment implements MainActivity.FragmentUpdate
 
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
-        FirebaseWrapper.confirmBtcOfferFirst(mOffer);
+        FirebaseWrapper.confirmBtcOfferSecond(mOffer);
     }
 
     @Override
     public void onDialogNegativeClick(DialogFragment dialog) {
         dialog.dismiss();
+    }
+
+    @Override
+    public String getFragmentTag() {
+        return Constants.OFFER_STATUS_FRAGMENT_TAG;
     }
 }

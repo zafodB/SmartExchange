@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UI.DeployContract">
+    tools:context=".UI.DeployContractFragment">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -95,11 +95,12 @@
             android:id="@+id/inputBtcAmount"
             android:layout_width="0dp"
             android:layout_height="46dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginTop="24dp"
             android:ems="10"
             android:hint="@string/hint_amount_btc"
             android:inputType="numberDecimal"
-            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintEnd_toStartOf="@+id/labelUnitsBtc"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/inputEthAddress" />
 
@@ -136,6 +137,19 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/inputBtcAddress" />
+
+        <TextView
+            android:id="@+id/labelUnitsBtc"
+            android:layout_width="wrap_content"
+            android:layout_height="46dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="24dp"
+            android:gravity="center_vertical"
+            android:text="@string/label_units_btc"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintTop_toBottomOf="@+id/inputEthAddress" />
 
 
     </android.support.constraint.ConstraintLayout>

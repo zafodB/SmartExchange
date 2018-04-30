@@ -98,7 +98,14 @@ public class OfferAdapter extends RecyclerView.Adapter<OfferAdapter.ViewHolder> 
         }
     }
 
+    BtcOffer getOfferAtPosition(int position){
+        if (mBtcOffers != null && mBtcOffers.size() != 0){
+            return mBtcOffers.get(position);
+        }
+        else return null;
+    }
+
     public interface RecyclerViewClickListener{
-        public void recyclerViewItemClicked(int position);
+        void recyclerViewItemClicked(int position);
     }
 }

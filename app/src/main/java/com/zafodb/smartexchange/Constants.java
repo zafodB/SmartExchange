@@ -1,5 +1,9 @@
 package com.zafodb.smartexchange;
 
+import com.zafodb.smartexchange.UI.DeployContractFragment;
+import com.zafodb.smartexchange.UI.OfferStatusFragment;
+import com.zafodb.smartexchange.UI.ValidateDeployFragment;
+import com.zafodb.smartexchange.UI.WalletPickFragment;
 import com.zafodb.smartexchange.Wrappers.Web3jwrapper;
 
 public class Constants {
@@ -44,23 +48,26 @@ public class Constants {
 
 
     /**
-     * Argument names for {@link com.zafodb.smartexchange.UI.DeployContract} fragment.
+     * Argument names for {@link DeployContractFragment} fragment.
      */
-    public static final String DEPLOY_CONTRACT_PARAM1 = "mWalletFileName";
-    public static final String DEPLOY_CONTRACT_PARAM2 = "walletAddress1";
+//    public static final String DEPLOY_CONTRACT_PARAM1 = "mWalletFileName";
+//    public static final String DEPLOY_CONTRACT_PARAM2 = "walletAddress1";
+    public static final String DEPLOY_CONTRACT_BTC_OFFER = "btcOffer";
 
     /**
-     * Argument names for {@link com.zafodb.smartexchange.UI.WalletPick} fragment.
+     * Argument names for {@link WalletPickFragment} fragment.
      */
     public static final String WALLET_PICK_PARAM1 = "walletAddress2";
 
     /**
-     * Argument names for {@link com.zafodb.smartexchange.UI.ValidateDeploy} fragment.
+     * Argument names for {@link ValidateDeployFragment} fragment.
      */
     public static final String VALIDATE_DEPLOY_PARAM1 = "tradeDeal";
+    public static final String VALIDATE_DEPLOY_PARAM2 = "btcOffer";
+
 
     /**
-     * Argument names for {@link com.zafodb.smartexchange.UI.OfferStatus} fragment.
+     * Argument names for {@link OfferStatusFragment} fragment.
      */
     public static final String BTC_OFFER_PARAM1 = "btcOfferParam";
 

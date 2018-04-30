@@ -29,6 +29,10 @@ public class TradeDeal implements Serializable{
         return new TradeDeal(destinationBtc, amountSatoshi, destinationEth, amountWei);
     }
 
+    public static TradeDeal loadDealFromOffer(BigInteger amountSatoshi, String destinationEth, BigInteger amountWei) {
+        return new TradeDeal(null, amountSatoshi, destinationEth, amountWei);
+    }
+
     public static TradeDeal makeEmptyDeal() {
         return new TradeDeal(null, null, null, null);
     }
