@@ -26,6 +26,9 @@ import java.math.RoundingMode;
 import java.util.concurrent.ExecutionException;
 
 /**
+ *
+ * @Author Filip Adamik
+ *
  * This class handles all the functionality that has too do with Ethereum and Web3j. This could be
  * verifying an address, deploying contract or converting Wei to Ether.
  */

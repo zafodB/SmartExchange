@@ -7,6 +7,7 @@ import java.math.BigInteger;
 import java.util.UUID;
 
 /**
+ * @Author Filip Adamik
  * Class used to hold data about a Bitcoin offer. Data can be supplied by user or from the database.
  */
 

@@ -24,6 +24,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
 
+/**
+ * @Author Filip Adamik
+ */
+
 public class MainActivity extends Activity implements WalletPickFragment.OnFragmentInteractionListener {
 
     private TradeDeal mTradeDeal;

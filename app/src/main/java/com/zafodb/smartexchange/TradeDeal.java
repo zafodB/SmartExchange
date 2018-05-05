@@ -7,6 +7,9 @@ import java.io.Serializable;
 import java.math.BigInteger;
 
 /**
+ *
+ * @Author Filip Adamik
+ *
  * TradaDeal class gets its properties from BtcOffer class, but contains additional parameter,
  * which is the destination Bitcoin address.
  *

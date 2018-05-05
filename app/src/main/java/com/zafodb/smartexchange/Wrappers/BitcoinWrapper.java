@@ -12,6 +12,8 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 
 /**
+ * @Author Filip Adamik
+ *
  * Class to handle conversion between Bitcoin and Satoshi and verify if a supplied address is
  * a valid Bitcoin address.
  */

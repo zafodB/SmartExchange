@@ -6,6 +6,10 @@ import com.zafodb.smartexchange.UI.ValidateDeployFragment;
 import com.zafodb.smartexchange.UI.WalletPickFragment;
 import com.zafodb.smartexchange.Wrappers.EthereumWrapper;
 
+/**
+ * @Author Filip Adamik
+ */
+
 public class Constants {
 
     /***

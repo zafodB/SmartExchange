@@ -18,6 +18,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 
 /**
+ *
+ * @Author Filip Adamik
+ *
  * FirebaseWrapper class wraps all the functionality that deals with Firebase.
  */
 public class FirebaseWrapper {
