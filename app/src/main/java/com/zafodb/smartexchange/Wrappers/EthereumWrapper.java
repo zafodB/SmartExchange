@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.zafodb.smartexchange.Constants;
-import com.zafodb.smartexchange.SmartExchange4;
+import com.zafodb.smartexchange.SmartExchange5;
 import com.zafodb.smartexchange.TradeDeal;
 import com.zafodb.smartexchange.ValidationException;
 
@@ -65,7 +65,7 @@ public class EthereumWrapper {
         try {
             Credentials credentials = WalletUtils.loadCredentials("aaa", context.getCacheDir().getPath() + "/" + walletFilename);
 
-            SmartExchange4 smartExchange = SmartExchange4.deploy(
+            SmartExchange5 smartExchange = SmartExchange5.deploy(
                     web3j,
                     credentials,
                     new BigInteger("20000000000"),

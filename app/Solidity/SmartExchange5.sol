@@ -3,15 +3,17 @@ pragma solidity ^0.4.16;
 // import "github.com/oraclize/ethereum-api/oraclizeAPI_0.4.sol";
 import "oraclize-api-master/oraclizeAPI_0.4.sol";
 
-contract SmartExchange4 is usingOraclize {
+contract SmartExchange5 is usingOraclize {
     
+    address eth_origin_address;
     string target_btc_address;
     address eth_dest_address;
     uint target_btc_amount;
     uint balance;
  
 //  Constructor
-    function SmartExchange4(string btc_address, address eth_address, uint satoshi_amount) payable{
+    function SmartExchange5(string btc_address, address eth_address, uint satoshi_amount) payable{
+        eth_origin_address = msg.sender;
         target_btc_address = btc_address;
         eth_dest_address = eth_address;
     
@@ -20,7 +22,7 @@ contract SmartExchange4 is usingOraclize {
         
         balance = msg.value;
 
-	    update();
+	update();
     }
         
 // Oraclize callback
@@ -29,8 +31,10 @@ contract SmartExchange4 is usingOraclize {
         
         uint resultAsInt = parseInt(result);
         
-        if (resultAsInt == target_btc_amount){
+        if (resultAsInt >= target_btc_amount){
             eth_dest_address.transfer(balance);
+        } else {
+            eth_origin_address.transfer(balance);
         }
     }
     
