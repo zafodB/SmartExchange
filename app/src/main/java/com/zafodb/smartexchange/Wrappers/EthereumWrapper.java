@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.zafodb.smartexchange.Constants;
-import com.zafodb.smartexchange.SmartExchange3;
+import com.zafodb.smartexchange.SmartExchange4;
 import com.zafodb.smartexchange.TradeDeal;
 import com.zafodb.smartexchange.ValidationException;
 
@@ -61,17 +61,17 @@ public class EthereumWrapper {
      */
     static private String sendContract(Context context, String walletFilename,
                                        BigInteger initialValue, String btcAddress,
-                                       String ethAddress, String satoshiAmount) {
+                                       String ethAddress, BigInteger satoshiAmount) {
         try {
             Credentials credentials = WalletUtils.loadCredentials("aaa", context.getCacheDir().getPath() + "/" + walletFilename);
 
-            SmartExchange3 smartExchange = SmartExchange3.deploy(
+            SmartExchange4 smartExchange = SmartExchange4.deploy(
                     web3j,
                     credentials,
-                    new BigInteger("30000000000"),
+                    new BigInteger("20000000000"),
                     new BigInteger("3000000"),
                     initialValue,
-                    btcAddress,
+                    Constants.BLOCKCHAIN_EXPLORER_API + btcAddress,
                     ethAddress,
                     satoshiAmount)
                     .sendAsync()
@@ -314,6 +314,6 @@ public class EthereumWrapper {
 
         return sendContract(context, walletFileName, amountToSend,
                 tradeDeal.getDestinationBtcAddress(), tradeDeal.getDestinationEthAddress(),
-                tradeDeal.getAmountSatoshi().toString());
+                tradeDeal.getAmountSatoshi());
     }
 }

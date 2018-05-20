@@ -106,10 +106,11 @@ public class Constants {
 //    public static final String INFURA_NODE_URL = "https://kovan.infura.io/ROrdzkoD6Ua0TH7cyaSh";
 //    public static final String INFURA_NODE_URL = "https://kovan.infura.io/IlXkpW67R8mNHL0HDIdO";
 //
-    public static final String ESTIMATED_CONTRACT_PRICE = "90000000000000000";
+    public static final String ESTIMATED_CONTRACT_PRICE = "45000000000000000";
     public static final int BALANCE_DISPLAY_DECIMALS = 4;
     public static final String WEIS_IN_ETHER = "1000000000000000000";
     public static final String SATOSHIS_IN_BTC = "100000000";
 
     public static final String ETHERSCAN_KOVAN_REFERENCE = "https://kovan.etherscan.io/tx/";
+    public static final String BLOCKCHAIN_EXPLORER_API = "https://testnet.blockchain.info/q/getreceivedbyaddress/";
 }
