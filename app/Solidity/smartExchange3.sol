@@ -3,7 +3,7 @@ pragma solidity ^0.4.21;
 // import "github.com/oraclize/ethereum-api/oraclizeAPI.sol";
 import "oraclize-api-master/oraclizeAPI_0.4.sol";
 
-contract SmartExchange2 is usingOraclize {
+contract SmartExchange3 is usingOraclize {
     
     string blockchainInfoApiAddress = "https://testnet.blockchain.info/q/getreceivedbyaddress/";
     
@@ -16,7 +16,7 @@ contract SmartExchange2 is usingOraclize {
     event logAddress (address dest_address);
  
 //  Constructor
-    function SmartExchange2(string btc_address, address eth_address, string satoshi_amount) payable{
+    function SmartExchange3(string btc_address, address eth_address, string satoshi_amount) payable{
         target_btc_address = btc_address;
         eth_dest_address = eth_address;
     
@@ -30,6 +30,8 @@ contract SmartExchange2 is usingOraclize {
         satoshi_amount,
         " satoshi will be tranferred to ",
         btc_address));
+
+	update();
     }
         
 // Oraclize callback
@@ -46,7 +48,7 @@ contract SmartExchange2 is usingOraclize {
     }
     
     function update()  {
-        oraclize_query(60, "URL", strConcat(blockchainInfoApiAddress, target_btc_address));
+        oraclize_query(600, "URL", strConcat(blockchainInfoApiAddress, target_btc_address));
         emit logMe("Query sent to Oraclize.");
     }
     

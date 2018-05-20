@@ -18,9 +18,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 
 /**
- *
  * @Author Filip Adamik
- *
+ * <p>
  * FirebaseWrapper class wraps all the functionality that deals with Firebase.
  */
 public class FirebaseWrapper {
@@ -96,8 +95,8 @@ public class FirebaseWrapper {
      * Create new Bitcoin offer in the database.
      *
      * @param offer Offer to create.
-     *
-     * TODO: Check, if offer was created.
+     *              <p>
+     *              TODO: Check, if offer was created.
      */
     public static void createBtcOffer(BtcOffer offer) {
         DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS);
@@ -116,9 +115,11 @@ public class FirebaseWrapper {
      *
      * @param offer Offer to be deleted.
      */
-    public static void deleteOwnOffer(BtcOffer offer) {
+    public static void deleteOwnOffer(BtcOffer offer, ValueEventListener listener) {
         DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS);
         ref.child(offer.getOfferId().toString()).removeValue();
+
+        removeOfferDataValueListener(offer, listener);
     }
 
     /**
@@ -126,7 +127,7 @@ public class FirebaseWrapper {
      *
      * @param activity Needed to find a fragment that called this method.
      * @param fragment Needed to find a fragment that called this method to deliver back the result.
-     * @param offer to check for status.
+     * @param offer    to check for status.
      * @return reference of ValueEventListener. This is needed in order to delete the listener at
      * a later time.
      */
@@ -142,12 +143,36 @@ public class FirebaseWrapper {
                                 .findFragmentByTag(fragment.getFragmentTag());
 
                 Long temp = (Long) dataSnapshot.child(Constants.DATA_OFFER_STATUS).getValue();
-                int status = temp.intValue();
 
-                Bundle args = new Bundle();
-                args.putInt(Constants.OFFER_STATUS_TAG, status);
+                String txHash = null;
 
-                pusher.pushUpdate(args);
+                if(dataSnapshot.child(Constants.DATA_OFFER_TX_HASH).exists()) {
+                    txHash = (String) dataSnapshot.child(Constants.DATA_OFFER_TX_HASH).getValue();
+                }
+
+                String destinationBtcAddress = null;
+
+                if(dataSnapshot.child(Constants.DATA_OFFER_BTC_ADDRESS).exists()) {
+                    destinationBtcAddress = (String) dataSnapshot.child(Constants.DATA_OFFER_BTC_ADDRESS).getValue();
+                }
+
+                if (temp != null) {
+                    int status = temp.intValue();
+
+                    Bundle args = new Bundle();
+
+                    if (txHash != null){
+                        args.putString(Constants.OFFER_STATUS_TX_HASH, txHash);
+                    }
+
+                    if (destinationBtcAddress != null){
+                        args.putString(Constants.OFFER_STATUS_BTC_ADDRESS, destinationBtcAddress);
+                    }
+
+                    args.putInt(Constants.OFFER_STATUS_TAG, status);
+
+                    pusher.pushUpdate(args);
+                }
             }
 
             @Override
@@ -161,20 +186,34 @@ public class FirebaseWrapper {
 
     /**
      * Update status of a bitcoin offer after user selected the offer.
+     *
      * @param offer Offer to confirm.
      */
-    public static void confirmBtcOfferFirst(BtcOffer offer) {
-        DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS).child(offer.getOfferId().toString());
-        ref.child(Constants.DATA_OFFER_STATUS).setValue(Constants.DATA_STATUS_THEY_CONFIRMED);
-    }
+//    public static void confirmBtcOfferFirst(BtcOffer offer) {
+//        DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS).child(offer.getOfferId().toString());
+//        ref.child(Constants.DATA_OFFER_STATUS).setValue(Constants.DATA_STATUS_THEY_CONFIRMED);
+//    }
 
     /**
      * Update status of a bitcoin offer after the owner of this offer has confirmed.
+     *
      * @param offer Offer to confirm.
      */
-    public static void confirmBtcOfferSecond(BtcOffer offer) {
+//    public static void confirmBtcOfferSecond(BtcOffer offer) {
+//        DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS).child(offer.getOfferId().toString());
+//        ref.child(Constants.DATA_OFFER_STATUS).setValue(Constants.DATA_STATUS_YOU_CONFIRMED);
+//    }
+
+    public static void setOfferStatus(BtcOffer offer, long status){
         DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS).child(offer.getOfferId().toString());
-        ref.child(Constants.DATA_OFFER_STATUS).setValue(Constants.DATA_STATUS_YOU_CONFIRMED);
+        ref.child(Constants.DATA_OFFER_STATUS).setValue(status);
+    }
+
+    public static void setOfferStatus(BtcOffer offer, long status, String txHash, String destinationBtcAddress){
+        DatabaseReference ref = fireData.getReference(Constants.DATA_BTC_OFFERS).child(offer.getOfferId().toString());
+        ref.child(Constants.DATA_OFFER_STATUS).setValue(status);
+        ref.child(Constants.DATA_OFFER_TX_HASH).setValue(txHash);
+        ref.child(Constants.DATA_OFFER_BTC_ADDRESS).setValue(destinationBtcAddress);
     }
 
     /**
@@ -188,7 +227,7 @@ public class FirebaseWrapper {
     /**
      * Remove ValueEventListener from a particular offer.
      *
-     * @param offer Offer to remove listener from.
+     * @param offer    Offer to remove listener from.
      * @param listener listener to remove.
      */
     public static void removeOfferDataValueListener(BtcOffer offer, ValueEventListener listener) {

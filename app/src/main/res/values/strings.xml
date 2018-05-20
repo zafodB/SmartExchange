@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">SmartExchange</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">SmartExchange</string>
 
     <string name="label_contract_deployed">Contract deployed to the network in transaction:</string>
     <string name="text_tx_hash">Transaction hash will appear here.</string>
@@ -41,7 +41,7 @@
     <string name="text_status_sent">The offer has been published.</string>
     <string name="text_status_conf1">Someone accepted your offer. Please confirm.</string>
     <string name="text_status_conf2">You confirmed. Waiting for their response.</string>
-    <string name="text_status_accepted">The offer has been accepted. Send Bitcoins to this address:</string>
+    <string name="text_status_accepted">The offer has been accepted. Please verify the contract here:</string>
     <string name="label_units_btc">BTC</string>
     <string name="label_refresh">Refresh</string>
     <string name="label_new">New</string>
@@ -50,6 +50,7 @@
     <string name="label_nickname">Nickname</string>
     <string name="label_no_offers">Unfortunately, there are no available offers at the moment.</string>
     <string name="label_confirm">Confirm</string>
-    <string name="label_offers">Offers</string>
+    <string name="label_offers">BTC Sell - offers</string>
+    <string name="text_status_link_error">Error fetching link.</string>
 
 </resources>

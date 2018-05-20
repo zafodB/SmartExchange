@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.zafodb.smartexchange.Constants;
-import com.zafodb.smartexchange.SmartExchange2;
+import com.zafodb.smartexchange.SmartExchange3;
 import com.zafodb.smartexchange.TradeDeal;
 import com.zafodb.smartexchange.ValidationException;
 
@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -62,7 +65,7 @@ public class EthereumWrapper {
         try {
             Credentials credentials = WalletUtils.loadCredentials("aaa", context.getCacheDir().getPath() + "/" + walletFilename);
 
-            SmartExchange2 smartExchange = SmartExchange2.deploy(
+            SmartExchange3 smartExchange = SmartExchange3.deploy(
                     web3j,
                     credentials,
                     new BigInteger("30000000000"),
@@ -144,15 +147,35 @@ public class EthereumWrapper {
 //    }
 
     // TODO: revisit this method.
-    static String createNewWallet(Context context) {
+    public static String createNewWallet(Context context) {
 //        TODO Remove temporary password.
         try {
             return WalletUtils.generateNewWalletFile("aaa", context.getCacheDir(), false);
-        } catch (Exception e) {
-            Log.e("FILIP", "Couldn't create new wallet because of exception.");
+        } catch (CipherException ce) {
+            Log.e("FILIP", "Couldn't create new wallet because of cypher exception.");
 
-            e.printStackTrace();
+            ce.printStackTrace();
+            return null;
+        } catch (IOException ie) {
+            Log.e("FILIP", "Couldn't create new wallet because of IO exception.");
 
+            ie.printStackTrace();
+
+            return null;
+        } catch (InvalidAlgorithmParameterException iape) {
+            Log.e("FILIP", "Couldn't create new wallet because of Invalid Algorithm parameter exception.");
+
+            iape.printStackTrace();
+            return null;
+        } catch (NoSuchAlgorithmException nae) {
+            Log.e("FILIP", "Couldn't create new wallet because of No Such Algorithm exception.");
+
+            nae.printStackTrace();
+            return null;
+        } catch (NoSuchProviderException npe) {
+            Log.e("FILIP", "Couldn't create new wallet because of No Such Provider exception.");
+
+            npe.printStackTrace();
             return null;
         }
     }
@@ -181,7 +204,7 @@ public class EthereumWrapper {
      */
     public static BigInteger getAddressBalance(String address) {
 //        TODO remove temporary
-        address = "0x12eFbeE9BBE117EEf08190d5e144FD4D168421A5";
+//        address = "0x12eFbeE9BBE117EEf08190d5e144FD4D168421A5";
 
         try {
             EthGetBalance ethGetBalance = web3j

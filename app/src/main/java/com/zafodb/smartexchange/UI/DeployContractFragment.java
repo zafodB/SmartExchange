@@ -146,7 +146,7 @@ public class DeployContractFragment extends CustomFragment implements MainActivi
                     MainActivity activity = (MainActivity) getActivity();
                     activity.setmTradeDeal(tradeDeal);
 
-                    FirebaseWrapper.confirmBtcOfferFirst(mOffer);
+                    FirebaseWrapper.setOfferStatus(mOffer, Constants.DATA_STATUS_THEY_CONFIRMED);
 
                     mListener.onFragmentInteraction(interactionCase);
                 } else Log.i("FILIP", "Something wrong");
@@ -219,7 +219,6 @@ public class DeployContractFragment extends CustomFragment implements MainActivi
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         if (resultCode == CommonStatusCodes.SUCCESS && data != null) {
             Barcode barcode = data.getParcelableExtra(BarcodeReaderActivity.BarcodeObject);
 

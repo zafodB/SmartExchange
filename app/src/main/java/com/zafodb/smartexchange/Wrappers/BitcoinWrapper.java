@@ -58,7 +58,7 @@ public class BitcoinWrapper {
         temp = temp.divide(divisor);
         temp = temp.setScale(decimals, RoundingMode.HALF_DOWN);
 
-        return temp.toPlainString();
+        return temp.toPlainString() + " BTC";
     }
 
     /**

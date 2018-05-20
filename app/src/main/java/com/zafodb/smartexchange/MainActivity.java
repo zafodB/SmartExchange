@@ -13,6 +13,7 @@ import com.zafodb.smartexchange.UI.CreateOfferFragment;
 import com.zafodb.smartexchange.UI.DeployContractFragment;
 import com.zafodb.smartexchange.UI.OfferStatusFragment;
 import com.zafodb.smartexchange.UI.OffersFragment;
+import com.zafodb.smartexchange.UI.SendBitcoin;
 import com.zafodb.smartexchange.UI.ValidateDeployFragment;
 import com.zafodb.smartexchange.UI.WalletPickFragment;
 import com.zafodb.smartexchange.Wrappers.EthereumWrapper;
@@ -35,6 +36,7 @@ public class MainActivity extends Activity implements WalletPickFragment.OnFragm
     private BtcOffer mExistingOffer;
     private String mTransactionHash;
     private String mWalletFileName;
+    private String destinationBtcAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +68,7 @@ public class MainActivity extends Activity implements WalletPickFragment.OnFragm
                 updateEthBalance();
                 break;
             case Constants.VALIDATION_DENIED_BY_USER:
+            case Constants.DELETE_OWN_OFFER:
                 onBackPressed();
                 break;
             case Constants.FROM_DEPLOY_TO_VALIDATE:
@@ -87,6 +90,10 @@ public class MainActivity extends Activity implements WalletPickFragment.OnFragm
                 break;
             case Constants.REMOVE_VALUE_EVENT_LISTENER:
                 FirebaseWrapper.removeOffersListener();
+                break;
+            case Constants.CONTINUE_TO_SEND_BITCOIN:
+                openNewFragment(SendBitcoin.newInstance(destinationBtcAddress, mNewOffer.getAmountSatoshiOffered()), Constants.SEND_BITCOIN_TAG);
+                break;
         }
     }
 
@@ -147,11 +154,11 @@ public class MainActivity extends Activity implements WalletPickFragment.OnFragm
     private void prepareWallet() {
 
 //        DISABLED TEMPORARILY
-//        mWalletFileName = EthereumWrapper.createNewWallet(getApplicationContext());
+        mWalletFileName = EthereumWrapper.createNewWallet(getApplicationContext());
 
 //        createCacheWallet();
 
-        mWalletFileName = "UTC--2018-04-21T19-27-42.888--12efbee9bbe117eef08190d5e144fd4d168421a5.json";
+//        mWalletFileName = "UTC--2018-04-21T19-27-42.888--12efbee9bbe117eef08190d5e144fd4d168421a5.json";
     }
 
     /**
@@ -204,6 +211,8 @@ public class MainActivity extends Activity implements WalletPickFragment.OnFragm
             public void run() {
                 setmTransactionHash(EthereumWrapper.deployContract(getApplicationContext(), mWalletFileName, mTradeDeal));
 
+                FirebaseWrapper.setOfferStatus(mExistingOffer, Constants.DATA_STATUS_ACCEPTED, getmTransactionHash(), mTradeDeal.getDestinationBtcAddress());
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -211,7 +220,11 @@ public class MainActivity extends Activity implements WalletPickFragment.OnFragm
                                 .findFragmentByTag(Constants.SENT_FRAGMENT_TAG);
 
                         Bundle args = new Bundle();
-                        args.putString(Constants.TRANSACTION_HASH, getmTransactionHash());
+                        if (getmTransactionHash() == null){
+                            args.putString(Constants.TRANSACTION_HASH, "There was an error");
+                        } else {
+                            args.putString(Constants.TRANSACTION_HASH, getmTransactionHash());
+                        }
 
                         if (pusher != null) {
                             pusher.pushUpdate(args);
@@ -255,6 +268,10 @@ public class MainActivity extends Activity implements WalletPickFragment.OnFragm
 
     public void setmExistingOffer(BtcOffer mExistingOffer) {
         this.mExistingOffer = mExistingOffer;
+    }
+
+    public void setDestinationBtcAddress(String destinationBtcAddress) {
+        this.destinationBtcAddress = destinationBtcAddress;
     }
 
     /**

@@ -22,9 +22,13 @@ import com.zafodb.smartexchange.Wrappers.FirebaseWrapper;
 public class OfferStatusFragment extends CustomFragment implements MainActivity.FragmentUpdateListener, ConfirmDialogFragment.NoticeDialogListener {
 
     private BtcOffer mOffer;
+    private String destinationBtcAddress;
 
     private TextView offerStatus;
+    private TextView txLink;
     private Button continueButton;
+    Button deleteOffer;
+
     private ValueEventListener mValueEventListener;
 
     private WalletPickFragment.OnFragmentInteractionListener mListener;
@@ -57,7 +61,7 @@ public class OfferStatusFragment extends CustomFragment implements MainActivity.
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Button deleteOffer = view.findViewById(R.id.buttonDeleteOffer);
+        deleteOffer = view.findViewById(R.id.buttonDeleteOffer);
         deleteOffer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -66,12 +70,13 @@ public class OfferStatusFragment extends CustomFragment implements MainActivity.
         });
 
         offerStatus = view.findViewById(R.id.textOfferStatus);
+        txLink = view.findViewById(R.id.textOfferHyperlink);
 
         continueButton = view.findViewById(R.id.buttonContinueOffer);
         continueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(), "This is clickable.", Toast.LENGTH_LONG).show();
+                onButtonPressed(Constants.CONTINUE_TO_SEND_BITCOIN);
             }
         });
     }
@@ -80,7 +85,11 @@ public class OfferStatusFragment extends CustomFragment implements MainActivity.
         if (mListener != null) {
             switch (interactionCase) {
                 case Constants.DELETE_OWN_OFFER:
-                    FirebaseWrapper.deleteOwnOffer(mOffer);
+                    FirebaseWrapper.deleteOwnOffer(mOffer, mValueEventListener);
+                    break;
+                case Constants.CONTINUE_TO_SEND_BITCOIN:
+                    MainActivity activity = (MainActivity) getActivity();
+                    activity.setDestinationBtcAddress(destinationBtcAddress);
             }
             mListener.onFragmentInteraction(interactionCase);
         }
@@ -128,13 +137,24 @@ public class OfferStatusFragment extends CustomFragment implements MainActivity.
             case 14:
                 offerStatus.setText(getString(R.string.text_status_accepted));
                 continueButton.setEnabled(true);
+                deleteOffer.setEnabled(false);
+
+                String txHash = args.getString(Constants.OFFER_STATUS_TX_HASH);
+                if (txHash != null){
+                    txLink.setVisibility(View.VISIBLE);
+                    txLink.setText(Constants.ETHERSCAN_KOVAN_REFERENCE + txHash);
+                } else{
+                    txLink.setText(getString(R.string.text_status_link_error));
+                }
+
+                destinationBtcAddress = args.getString(Constants.OFFER_STATUS_BTC_ADDRESS);
                 break;
         }
     }
 
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
-        FirebaseWrapper.confirmBtcOfferSecond(mOffer);
+        FirebaseWrapper.setOfferStatus(mOffer, Constants.DATA_STATUS_YOU_CONFIRMED);
     }
 
     @Override

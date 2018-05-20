@@ -139,7 +139,6 @@ public class OffersFragment extends CustomFragment implements MainActivity.Fragm
         }
 
         mPositionClicked = position;
-//
     }
 
     @Override

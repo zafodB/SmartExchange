@@ -4,6 +4,7 @@ import com.zafodb.smartexchange.UI.DeployContractFragment;
 import com.zafodb.smartexchange.UI.OfferStatusFragment;
 import com.zafodb.smartexchange.UI.ValidateDeployFragment;
 import com.zafodb.smartexchange.UI.WalletPickFragment;
+import com.zafodb.smartexchange.UI.SendBitcoin;
 import com.zafodb.smartexchange.Wrappers.EthereumWrapper;
 
 /**
@@ -26,6 +27,7 @@ public class Constants {
     public static final int CREATE_NEW_OFFER = 573;
     public static final int DELETE_OWN_OFFER = 574;
     public static final int REMOVE_VALUE_EVENT_LISTENER = 575;
+    public static final int CONTINUE_TO_SEND_BITCOIN = 576;
 
     /**
      * Fragment tags.
@@ -38,6 +40,7 @@ public class Constants {
     public static final String CREATE_OFFER_TAG = "newOfferFragTag";
     public static final String OFFER_STATUS_FRAGMENT_TAG = "offerStatusFragTag";
     public static final String CONFIRM_DIALOG_TAG = "ConfirmDialogFragTag";
+    public static final String SEND_BITCOIN_TAG = "SendBitcoinFragTag";
 
     /**
      * General bundle parameter labels.
@@ -47,6 +50,8 @@ public class Constants {
     public static final String OFFERS_LIST = "btcOffers";
     public static final String BTC_OFFER_TAG = "newBtcOffer";
     public static final String OFFER_STATUS_TAG = "offerStatusChanged";
+    public static final String OFFER_STATUS_TX_HASH = "offerTxHashChanged";
+    public static final String OFFER_STATUS_BTC_ADDRESS = "offerDestinationBtcAddress";
 
     /**
      * Argument names for {@link DeployContractFragment} fragment.
@@ -66,11 +71,16 @@ public class Constants {
     public static final String VALIDATE_DEPLOY_PARAM1 = "tradeDeal";
     public static final String VALIDATE_DEPLOY_PARAM2 = "btcOffer";
 
-
     /**
      * Argument names for {@link OfferStatusFragment} fragment.
      */
     public static final String BTC_OFFER_PARAM1 = "btcOfferParam";
+
+    /**
+     * Argument names for {@link SendBitcoin} fragment.
+     */
+    public static final String DESTINATION_BTC_ADDRESS_PARAM = "btcDestinationParam";
+    public static final String DESTINATION_BTC_AMOUNT_PARAM = "btcAmountParam";
 
     /**
      * Firebase Database labels
@@ -81,6 +91,8 @@ public class Constants {
     public static final String DATA_OFFER_NICKNAME = "offerNickname";
     public static final String DATA_OFFER_ETHADDRESS = "destinationEthAddress";
     public static final String DATA_OFFER_STATUS = "offerStatus";
+    public static final String DATA_OFFER_TX_HASH = "txHash";
+    public static final String DATA_OFFER_BTC_ADDRESS = "destinationBtcAddress";
     public static final long DATA_STATUS_NEW = 11;
     public static final long DATA_STATUS_THEY_CONFIRMED = 12;
     public static final long DATA_STATUS_YOU_CONFIRMED = 13;
