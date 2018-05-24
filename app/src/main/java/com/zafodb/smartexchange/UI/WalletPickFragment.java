@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,17 +19,17 @@ import com.zafodb.smartexchange.R;
  * Activities that contain this fragment must implement the
  * {@link OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link WalletPick#newInstance} factory method to
+ * Use the {@link WalletPickFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class WalletPick extends Fragment {
+public class WalletPickFragment extends CustomFragment {
 
     private String walletAddress;
 
     private OnFragmentInteractionListener mListener;
 
-    public static WalletPick newInstance(String param1) {
-        WalletPick fragment = new WalletPick();
+    public static WalletPickFragment newInstance(String param1) {
+        WalletPickFragment fragment = new WalletPickFragment();
         Bundle args = new Bundle();
         args.putString(Constants.WALLET_PICK_PARAM1, param1);
         fragment.setArguments(args);
@@ -43,6 +42,7 @@ public class WalletPick extends Fragment {
 
         if (getArguments() != null) {
             walletAddress = getArguments().getString(Constants.WALLET_PICK_PARAM1);
+
         }
     }
 
@@ -91,6 +91,11 @@ public class WalletPick extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public String getFragmentTag() {
+        return Constants.WALLET_PICK_FRAGMENT_TAG;
     }
 
     /**

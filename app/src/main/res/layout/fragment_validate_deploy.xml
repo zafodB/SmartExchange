@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UI.ValidateDeploy">
+    tools:context=".UI.ValidateDeployFragment">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -41,7 +41,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/labelAreYouSure"
             tools:text="1.23 kETH" />
-
 
         <TextView
             android:id="@+id/labelToAddress"
@@ -90,7 +89,7 @@
             tools:text="4.56 BTC" />
 
         <TextView
-            android:id="@+id/labelWillBeTransfered"
+            android:id="@+id/labelWillBeTransferred"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -109,7 +108,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/labelWillBeTransfered"
+            app:layout_constraintTop_toBottomOf="@+id/labelWillBeTransferred"
             tools:text="2N6PnCNgWbqG2ggxRsYkdSzsvkUCZ4vnKJZ" />
 
         <TextView

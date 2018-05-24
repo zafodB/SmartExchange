@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UI.DeployContract">
+    tools:context=".UI.DeployContractFragment">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -56,15 +56,15 @@
                 android:layout_height="35dp"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
-                android:text="0.00 kETH"
+                android:text="@string/dummy_eth_balance"
                 android:textAlignment="center"
                 tools:text="1.23 kETH" />
 
             <ImageButton
-                android:id="@+id/refreshBalanceButton"
+                android:id="@+id/buttonRefreshBalance"
+                android:contentDescription="@string/label_refresh"
                 android:layout_width="39dp"
                 android:layout_height="35dp"
-
                 android:layout_weight="1"
                 android:src="@android:drawable/ic_popup_sync" />
         </LinearLayout>
@@ -96,11 +96,12 @@
             android:id="@+id/inputBtcAmount"
             android:layout_width="0dp"
             android:layout_height="46dp"
+            android:layout_marginEnd="8dp"
             android:layout_marginTop="24dp"
             android:ems="10"
             android:hint="@string/hint_amount_btc"
             android:inputType="numberDecimal"
-            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintEnd_toStartOf="@+id/labelUnitsBtc"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/inputEthAddress" />
 
@@ -128,7 +129,7 @@
             app:layout_constraintTop_toBottomOf="@+id/inputBtcAmount" />
 
         <Button
-            android:id="@+id/button_validate_proceed"
+            android:id="@+id/buttonValidateProceed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
@@ -138,6 +139,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/inputBtcAddress" />
 
+        <TextView
+            android:id="@+id/labelUnitsBtc"
+            android:layout_width="wrap_content"
+            android:layout_height="46dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="24dp"
+            android:gravity="center_vertical"
+            android:text="@string/label_units_btc"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toStartOf="@+id/guideline2"
+            app:layout_constraintTop_toBottomOf="@+id/inputEthAddress" />
 
     </android.support.constraint.ConstraintLayout>
 </FrameLayout>

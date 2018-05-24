@@ -3,7 +3,6 @@ package com.zafodb.smartexchange.UI;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,14 +13,17 @@ import com.zafodb.smartexchange.Constants;
 import com.zafodb.smartexchange.MainActivity;
 import com.zafodb.smartexchange.R;
 
-public class ContractSent extends Fragment implements MainActivity.FragmentUpdateListener {
+import org.spongycastle.crypto.agreement.srp.SRP6Client;
 
-    private WalletPick.OnFragmentInteractionListener mListener;
+public class ContractSentFragment extends CustomFragment implements MainActivity.FragmentUpdateListener {
+
+    private WalletPickFragment.OnFragmentInteractionListener mListener;
 
     TextView txHashView;
+    TextView txHyperlinkView;
 
-    public static ContractSent newInstance() {
-        return new ContractSent();
+    public static ContractSentFragment newInstance() {
+        return new ContractSentFragment();
     }
 
     @Override
@@ -35,6 +37,7 @@ public class ContractSent extends Fragment implements MainActivity.FragmentUpdat
         super.onViewCreated(view, savedInstanceState);
 
         txHashView = view.findViewById(R.id.textContractTxHash);
+        txHyperlinkView = view.findViewById(R.id.textTxHyperlink);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -47,8 +50,8 @@ public class ContractSent extends Fragment implements MainActivity.FragmentUpdat
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof WalletPick.OnFragmentInteractionListener) {
-            mListener = (WalletPick.OnFragmentInteractionListener) context;
+        if (context instanceof WalletPickFragment.OnFragmentInteractionListener) {
+            mListener = (WalletPickFragment.OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -63,6 +66,15 @@ public class ContractSent extends Fragment implements MainActivity.FragmentUpdat
 
     @Override
     public void pushUpdate(Bundle args) {
-        txHashView.setText(args.getString(Constants.TRANSACTION_HASH));
+        String txHash = args.getString(Constants.TRANSACTION_HASH);
+
+        txHashView.setText(txHash);
+
+        txHyperlinkView.setText(Constants.ETHERSCAN_KOVAN_REFERENCE + txHash);
+    }
+
+    @Override
+    public String getFragmentTag() {
+        return Constants.SENT_FRAGMENT_TAG;
     }
 }

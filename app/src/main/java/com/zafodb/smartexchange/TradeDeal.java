@@ -1,13 +1,20 @@
 package com.zafodb.smartexchange;
 
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.AddressFormatException;
-import org.bitcoinj.params.TestNet3Params;
+import com.zafodb.smartexchange.Wrappers.BitcoinWrapper;
+import com.zafodb.smartexchange.Wrappers.EthereumWrapper;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 
+/**
+ *
+ * @Author Filip Adamik
+ *
+ * TradaDeal class gets its properties from BtcOffer class, but contains additional parameter,
+ * which is the destination Bitcoin address.
+ *
+ * TradeDeal is used when finalising, verifying and deploying the contract.
+ */
 public class TradeDeal implements Serializable{
 
     private String destinationBtcAddress;
@@ -15,6 +22,16 @@ public class TradeDeal implements Serializable{
     private String destinationEthAddress;
     private BigInteger amountWei;
 
+    /**
+     * Private constructor.
+     *
+     * @param destinationBtc Bitcoin address, that will be monitored in deployed Smart Contract.
+     * @param amountSatoshi Amount of Satoshi, that will be the threshold for sending Ether to its
+     *                      destination
+     * @param destinationEth Destination Ethereum address. Target address, where Ether will be sent
+     *                       if the Bitcoin condition was validated successfully.
+     * @param amountWei Amount of Wei that will be transferred to the destination Ethereum address.
+     */
     private TradeDeal(String destinationBtc, BigInteger amountSatoshi, String destinationEth, BigInteger amountWei) {
         this.destinationBtcAddress = destinationBtc;
         this.amountSatoshi = amountSatoshi;
@@ -26,21 +43,42 @@ public class TradeDeal implements Serializable{
         return new TradeDeal(destinationBtc, amountSatoshi, destinationEth, amountWei);
     }
 
+    /**
+     * Static method that wraps the private constructor. Used when a Bitcoin offer has been accepted a
+     * nd needs to be converted to a contract.
+     *
+     * @param amountSatoshi Amount of Satoshi for the contract (see above).
+     * @param destinationEth Destination Eth address (see above).
+     * @param amountWei Amount of wei to transfer (see above).
+     *
+     * @return New instance of TradeDeal.
+     */
+    public static TradeDeal loadDealFromOffer(BigInteger amountSatoshi, String destinationEth, BigInteger amountWei) {
+        return new TradeDeal(null, amountSatoshi, destinationEth, amountWei);
+    }
+
+    /**
+     * Method to wrap empty private constructor.
+     *
+     * @return New instance of TradeDeal
+     */
     public static TradeDeal makeEmptyDeal() {
         return new TradeDeal(null, null, null, null);
     }
-
 
     public String getDestinationBtcAddress() {
         return destinationBtcAddress;
     }
 
+    /**
+     * Setter to verify that destination Bitcoin address is in valid format and is on Bitcoin Testnet.
+     *
+     * @param destinationBtcAddress Input to verify (usually from user).
+     * @throws ValidationException Exception thrown if address is not in proper format or if the
+     * address is on other network than Testnet.
+     */
     public void setDestinationBtcAddress(String destinationBtcAddress) throws ValidationException {
-        try {
-            Address.fromBase58(TestNet3Params.get(), destinationBtcAddress);
-        } catch (AddressFormatException ae) {
-            throw new ValidationException(ae.getMessage(), ae.getCause());
-        }
+        BitcoinWrapper.validateBtcAddress(destinationBtcAddress);
 
         this.destinationBtcAddress = destinationBtcAddress;
     }
@@ -53,32 +91,30 @@ public class TradeDeal implements Serializable{
         this.amountSatoshi = amountSatoshi;
     }
 
+    /**
+     * Setter for the amount of Satoshi. Converts String to BigInteger and verifies that the amount
+     * is greater than 0.
+     *
+     * @param amountBtcString Input, possibly from user. Can contain decimal number.
+     * @throws ValidationException Exception thrown if conversion fails or if input is smaller than
+     * 0 Satoshi.
+     */
     public void setAmountSatoshi(String amountBtcString) throws ValidationException {
-
-        try {
-            BigDecimal btc = new BigDecimal(amountBtcString);
-
-            btc = btc.multiply(new BigDecimal("100000000"));
-
-            if (btc.compareTo(BigDecimal.ONE) <= 0) {
-                throw new ValidationException("Amount is too small.");
-            }
-
-            this.amountSatoshi = btc.toBigInteger();
-
-//        TODO Let user know whats wrong (if returns false)
-        } catch (NumberFormatException ne) {
-            throw new ValidationException(ne.getMessage(), ne.getCause());
-        }
+        this.amountSatoshi = BitcoinWrapper.btcStringToSatoshi(amountBtcString);
     }
-
 
     public String getDestinationEthAddress() {
         return destinationEthAddress;
     }
 
+    /**
+     * Method to verify that destination Ethereum address is in valid format.
+     *
+     * @param destinationEthAddress Input to verify (usually from user).
+     * @throws ValidationException Exception thrown if verification fails.
+     */
     public void setDestinationEthAddress(String destinationEthAddress) throws ValidationException {
-        if (!Web3jwrapper.validateAddress(destinationEthAddress)) {
+        if (!EthereumWrapper.validateAddress(destinationEthAddress)) {
             throw new ValidationException("Address is not valid.");
         }
 

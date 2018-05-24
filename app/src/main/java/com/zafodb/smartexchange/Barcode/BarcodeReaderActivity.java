@@ -109,7 +109,6 @@ public final class BarcodeReaderActivity extends Activity
 
     /**
      * Creates and starts the camera.
-     * <p>
      */
     private void createCameraSource(boolean autoFocus, boolean useFlash) {
         Context context = getApplicationContext();

@@ -3,7 +3,6 @@ package com.zafodb.smartexchange.UI;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,12 +18,15 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.zafodb.smartexchange.Barcode.BarcodeReaderActivity;
+import com.zafodb.smartexchange.BtcOffer;
 import com.zafodb.smartexchange.Constants;
 import com.zafodb.smartexchange.MainActivity;
 import com.zafodb.smartexchange.R;
 import com.zafodb.smartexchange.TradeDeal;
 import com.zafodb.smartexchange.ValidationException;
-import com.zafodb.smartexchange.Web3jwrapper;
+import com.zafodb.smartexchange.Wrappers.BitcoinWrapper;
+import com.zafodb.smartexchange.Wrappers.EthereumWrapper;
+import com.zafodb.smartexchange.Wrappers.FirebaseWrapper;
 
 import java.math.BigInteger;
 
@@ -32,36 +34,47 @@ import java.math.BigInteger;
 ///**
 // * A simple {@link Fragment} subclass.
 // * Activities that contain this fragment must implement the
-// * {@link DeployContract.OnFragmentInteractionListener} interface
+// * {@link DeployContractFragment.OnFragmentInteractionListener} interface
 // * to handle interaction events.
-// * Use the {@link DeployContract#newInstance} factory method to
+// * Use the {@link DeployContractFragment#newInstance} factory method to
 // * create an instance of this fragment.
 // */
-public class DeployContract extends Fragment implements MainActivity.FragmentUpdateListener {
+public class DeployContractFragment extends CustomFragment implements MainActivity.FragmentUpdateListener {
 
     TextView ethBalance;
     ImageButton refreshBalanceButton;
-    TextView btcAddress;
-    TextView btcAmount;
-    TextView ethAddress;
+    TextView textBtcAddress;
+    TextView textBtcAmount;
+    TextView textEthAddress;
 
     private TradeDeal tradeDeal;
+    private BtcOffer mOffer;
 
-    private WalletPick.OnFragmentInteractionListener mListener;
+    private WalletPickFragment.OnFragmentInteractionListener mListener;
 
-    public static DeployContract newInstance() {
-        return new DeployContract();
+    public static DeployContractFragment newInstance(BtcOffer param1) {
+
+        DeployContractFragment fragment = new DeployContractFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(Constants.DEPLOY_CONTRACT_BTC_OFFER, param1);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
+            mOffer = (BtcOffer) getArguments().getSerializable(Constants.DEPLOY_CONTRACT_BTC_OFFER);
+
+//            TODO: unwrap existing offer and turn it to Tradedeal
 //            walletFilename = getArguments().getString(Constants.DEPLOY_CONTRACT_PARAM1);
 //            walletAddress = getArguments().getString(Constants.DEPLOY_CONTRACT_PARAM2);
         }
 
         tradeDeal = TradeDeal.makeEmptyDeal();
+        tradeDeal = TradeDeal.loadDealFromOffer(mOffer.getAmountSatoshiOffered(),
+                mOffer.getDestinationEthAddress(), mOffer.getAmountWeiWanted());
     }
 
     @Override
@@ -77,11 +90,20 @@ public class DeployContract extends Fragment implements MainActivity.FragmentUpd
         ethBalance = view.findViewById(R.id.ethBallanceCurrent);
         refreshBalance();
 
-        btcAddress = view.findViewById(R.id.inputBtcAddress);
-        btcAmount = view.findViewById(R.id.inputBtcAmount);
-        ethAddress = view.findViewById(R.id.inputEthAddress);
+        textBtcAddress = view.findViewById(R.id.inputBtcAddress);
+        textBtcAmount = view.findViewById(R.id.inputBtcAmount);
+        textEthAddress = view.findViewById(R.id.inputEthAddress);
 
-        refreshBalanceButton = view.findViewById(R.id.refreshBalanceButton);
+        BigInteger satoshis = tradeDeal.getAmountSatoshi();
+        if (satoshis != null){
+            textBtcAmount.setText(BitcoinWrapper.satoshiToBtcString(satoshis, 4));
+        }
+        String ethAddress = tradeDeal.getDestinationEthAddress();
+        if (ethAddress != null){
+            textEthAddress.setText(ethAddress);
+        }
+
+        refreshBalanceButton = view.findViewById(R.id.buttonRefreshBalance);
         refreshBalanceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -89,17 +111,11 @@ public class DeployContract extends Fragment implements MainActivity.FragmentUpd
             }
         });
 
-        Button validateButton = view.findViewById(R.id.button_validate_proceed);
+        Button validateButton = view.findViewById(R.id.buttonValidateProceed);
         validateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (validateInput(btcAddress.getText().toString(), btcAmount.getText().toString(), ethAddress.getText().toString())) {
-
-                    MainActivity activity = (MainActivity) getActivity();
-                    activity.setmTradeDeal(tradeDeal);
-
-                    onButtonPressed(Constants.FROM_DEPLOY_TO_VALIDATE);
-                } else Log.i("FILIP", "Something wrong");
+                onButtonPressed(Constants.FROM_DEPLOY_TO_VALIDATE);
             }
         });
 
@@ -122,15 +138,27 @@ public class DeployContract extends Fragment implements MainActivity.FragmentUpd
 
     public void onButtonPressed(int interactionCase) {
         if (mListener != null) {
-            mListener.onFragmentInteraction(interactionCase);
+            if (interactionCase == Constants.FROM_DEPLOY_TO_VALIDATE) {
+                if (validateInput(textBtcAddress.getText().toString(), textBtcAmount.getText().toString(), textEthAddress.getText().toString())) {
+
+                    tradeDeal.setAmountWei(mOffer.getAmountWeiWanted());
+
+                    MainActivity activity = (MainActivity) getActivity();
+                    activity.setmTradeDeal(tradeDeal);
+
+                    FirebaseWrapper.setOfferStatus(mOffer, Constants.DATA_STATUS_THEY_CONFIRMED);
+
+                    mListener.onFragmentInteraction(interactionCase);
+                } else Log.i("FILIP", "Something wrong");
+            }
         }
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof WalletPick.OnFragmentInteractionListener) {
-            mListener = (WalletPick.OnFragmentInteractionListener) context;
+        if (context instanceof WalletPickFragment.OnFragmentInteractionListener) {
+            mListener = (WalletPickFragment.OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -154,8 +182,8 @@ public class DeployContract extends Fragment implements MainActivity.FragmentUpd
         if (balance == null) {
             ethBalance.setText("Error");
         } else {
-            tradeDeal.setAmountWei(balance);
-            ethBalance.setText(Web3jwrapper.ethBalanceToString(balance, Constants.BALANCE_DISPLAY_DECIMALS));
+
+            ethBalance.setText(EthereumWrapper.weiToString(balance, Constants.BALANCE_DISPLAY_DECIMALS));
         }
     }
 
@@ -172,7 +200,7 @@ public class DeployContract extends Fragment implements MainActivity.FragmentUpd
         }
 
 //        TODO Actually check and verify ETH balance
-        if(tradeDeal.getAmountWei() == null){
+        if (tradeDeal.getAmountWei() == null) {
             return false;
         }
 
@@ -191,17 +219,16 @@ public class DeployContract extends Fragment implements MainActivity.FragmentUpd
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         if (resultCode == CommonStatusCodes.SUCCESS && data != null) {
             Barcode barcode = data.getParcelableExtra(BarcodeReaderActivity.BarcodeObject);
 
             switch (requestCode) {
                 case BarcodeReaderActivity.READ_BTC_ADDRESS:
-                    btcAddress.setText(barcode.displayValue);
+                    textBtcAddress.setText(barcode.displayValue);
                     break;
 
                 case BarcodeReaderActivity.READ_ETH_ADDRESS:
-                    ethAddress.setText(barcode.displayValue);
+                    textEthAddress.setText(barcode.displayValue);
                     break;
 
                 default:
@@ -212,4 +239,8 @@ public class DeployContract extends Fragment implements MainActivity.FragmentUpd
     }
 
 
+    @Override
+    public String getFragmentTag() {
+        return Constants.DEPLOY_FRAGMENT_TAG;
+    }
 }

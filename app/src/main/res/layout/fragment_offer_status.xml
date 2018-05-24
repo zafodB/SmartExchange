@@ -4,63 +4,67 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UI.ContractSentFragment">
+    tools:context=".UI.OfferStatusFragment">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/labelContractDeployed"
+            android:id="@+id/labelOfferStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="32dp"
-            android:text="@string/label_contract_deployed"
+            android:layout_marginTop="80dp"
+            android:text="@string/label_offer_status"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/textContractTxHash"
+            android:id="@+id/textOfferStatus"
             android:layout_width="wrap_content"
-            android:layout_height="35dp"
-            android:layout_marginEnd="24dp"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="32dp"
-            android:text="@string/text_tx_hash"
-            android:textAlignment="center"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/label_new"
             android:textColor="@android:color/black"
-            android:textIsSelectable="true"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/labelContractDeployed" />
+            app:layout_constraintTop_toBottomOf="@+id/labelOfferStatus" />
 
         <TextView
-            android:id="@+id/textTxHyperlink"
+            android:id="@+id/textOfferHyperlink"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:layout_marginStart="24dp"
-            android:layout_marginEnd="24dp"
+            android:layout_marginTop="16dp"
             android:autoLink="web"
             android:text="@string/text_tx_hyperlink"
             android:textColor="@android:color/holo_blue_dark"
+            android:visibility="invisible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textContractTxHash" />
+            app:layout_constraintTop_toBottomOf="@+id/textOfferStatus" />
 
-        <!--TODO: Change text-->
         <Button
-            android:id="@+id/buttonOkSent"
+            android:id="@+id/buttonContinueOffer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="60dp"
-            android:text="Ok"
+            android:layout_marginTop="32dp"
+            android:enabled="false"
+            android:text="@string/label_continue"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textTxHyperlink" />
+            app:layout_constraintTop_toBottomOf="@+id/textOfferHyperlink" />
+
+        <Button
+            android:id="@+id/buttonDeleteOffer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:text="@string/label_delete_offer"
+            android:textAllCaps="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
     </android.support.constraint.ConstraintLayout>
 </FrameLayout>

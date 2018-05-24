@@ -7,10 +7,17 @@ import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.zafodb.smartexchange.UI.ContractSent;
-import com.zafodb.smartexchange.UI.DeployContract;
-import com.zafodb.smartexchange.UI.ValidateDeploy;
-import com.zafodb.smartexchange.UI.WalletPick;
+import com.google.firebase.database.ValueEventListener;
+import com.zafodb.smartexchange.UI.ContractSentFragment;
+import com.zafodb.smartexchange.UI.CreateOfferFragment;
+import com.zafodb.smartexchange.UI.DeployContractFragment;
+import com.zafodb.smartexchange.UI.OfferStatusFragment;
+import com.zafodb.smartexchange.UI.OffersFragment;
+import com.zafodb.smartexchange.UI.SendBitcoin;
+import com.zafodb.smartexchange.UI.ValidateDeployFragment;
+import com.zafodb.smartexchange.UI.WalletPickFragment;
+import com.zafodb.smartexchange.Wrappers.EthereumWrapper;
+import com.zafodb.smartexchange.Wrappers.FirebaseWrapper;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -18,11 +25,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
 
-public class MainActivity extends Activity implements WalletPick.OnFragmentInteractionListener {
+/**
+ * @Author Filip Adamik
+ */
+
+public class MainActivity extends Activity implements WalletPickFragment.OnFragmentInteractionListener {
 
     private TradeDeal mTradeDeal;
+    private BtcOffer mNewOffer;
+    private BtcOffer mExistingOffer;
     private String mTransactionHash;
     private String mWalletFileName;
+    private String destinationBtcAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,55 +47,80 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
             return;
         }
 
-//        TODO: see, if this is placed in a good spot.
-        prepareWallet();
+//        createCacheWallet();
 
-        WalletPick fragment = WalletPick.newInstance(getWalletAddress());
-        openNewFragment(fragment, fragment.getClass().getName());
+        prepareWallet();
+        openNewFragment(OffersFragment.newInstance(), Constants.OFFERS_FRAGMENT_TAG);
     }
 
     @Override
     public void onFragmentInteraction(int interactionCase) {
         switch (interactionCase) {
+            case Constants.FROM_OFFERS_TO_WALLETPICK:
+//                  TODO: Handle what offer was picked.
+//                  TODO: see, if this is placed in a good spot.
+                openNewFragment(WalletPickFragment.newInstance(getWalletAddress()), Constants.WALLET_PICK_FRAGMENT_TAG);
+                break;
             case Constants.FROM_WALLET_PICK_TO_DEPLOY:
-                openNewFragment(DeployContract.newInstance(), Constants.DEPLOY_FRAGMENT_TAG);
+                openNewFragment(DeployContractFragment.newInstance(mExistingOffer), Constants.DEPLOY_FRAGMENT_TAG);
                 break;
             case Constants.ETH_BALANCE_UPDATE:
                 updateEthBalance();
                 break;
-            case Constants.VALIDATION_UNSUCCESSFUL:
+            case Constants.VALIDATION_DENIED_BY_USER:
+            case Constants.DELETE_OWN_OFFER:
                 onBackPressed();
                 break;
             case Constants.FROM_DEPLOY_TO_VALIDATE:
-                openNewFragment(ValidateDeploy.newInstance(getmTradeDeal()), Constants.VALIDATE_FRAGMENT_TAG);
+                openNewFragment(ValidateDeployFragment.newInstance(getmTradeDeal(), mExistingOffer), Constants.VALIDATE_FRAGMENT_TAG);
                 break;
             case Constants.VALIDATION_SUCCESSFUL:
-                openNewFragment(ContractSent.newInstance(), Constants.SENT_FRAGMENT_TAG);
+                openNewFragment(ContractSentFragment.newInstance(), Constants.SENT_FRAGMENT_TAG);
                 deployContract();
+                break;
+            case Constants.OFFERS_UPDATE:
+                updateOffers();
+                break;
+            case Constants.FROM_OFFERS_TO_NEWOFFER:
+                openNewFragment(CreateOfferFragment.newInstance(), Constants.CREATE_OFFER_TAG);
+                break;
+            case Constants.CREATE_NEW_OFFER:
+                FirebaseWrapper.createBtcOffer(mNewOffer);
+                openNewFragment(OfferStatusFragment.newInstance(mNewOffer), Constants.OFFER_STATUS_FRAGMENT_TAG);
+                break;
+            case Constants.REMOVE_VALUE_EVENT_LISTENER:
+                FirebaseWrapper.removeOffersListener();
+                break;
+            case Constants.CONTINUE_TO_SEND_BITCOIN:
+                openNewFragment(SendBitcoin.newInstance(destinationBtcAddress, mNewOffer.getAmountSatoshiOffered()), Constants.SEND_BITCOIN_TAG);
                 break;
         }
     }
 
     /**
      * If user presses back button after they just sent the contract, this method will prevent
-     * {@link ValidateDeploy} from showing (to prevent accidental double-deploy.
+     * {@link ValidateDeployFragment} from showing (to prevent accidental double-deploy.
      */
     @Override
     public void onBackPressed() {
-
-        Log.v("FILIP", "checkpoint 8");
-
-        ValidateDeploy fragment = (ValidateDeploy) getFragmentManager().findFragmentByTag(Constants.VALIDATE_FRAGMENT_TAG);
+        ValidateDeployFragment fragment = (ValidateDeployFragment) getFragmentManager().findFragmentByTag(Constants.VALIDATE_FRAGMENT_TAG);
         if (fragment != null) {
-            getFragmentManager().popBackStack(ValidateDeploy.class.getName(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        } else
-            super.onBackPressed();
+            getFragmentManager().popBackStack(WalletPickFragment.class.getName(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        } else {
+            CreateOfferFragment fragment1 = (CreateOfferFragment) getFragmentManager().findFragmentByTag(Constants.CREATE_OFFER_TAG);
+
+            if (fragment1 != null) {
+                getFragmentManager().popBackStack(CreateOfferFragment.class.getName(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            } else {
+                super.onBackPressed();
+            }
+        }
     }
 
     /**
      * Should destroy the currently used wallet on destroy (as this should be empty).
      * However, this is not the ideal behaviour, should revisit this, whether it is needed.
-     *
+     * <p>
      * TODO: revisit deleting the wallets on destroy.
      */
     @Override
@@ -96,7 +135,7 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
     /**
      * Opens a fragment. Used to navigate forward in the app.
      *
-     * @param fragment Instance of fragment to be opened.
+     * @param fragment    Instance of fragment to be opened.
      * @param fragmentTag Fragment tag (defined in {@link Constants}).
      */
     private void openNewFragment(Fragment fragment, String fragmentTag) {
@@ -115,25 +154,25 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
     private void prepareWallet() {
 
 //        DISABLED TEMPORARILY
-//        mWalletFileName = Web3jwrapper.createNewWallet(getApplicationContext());
+        mWalletFileName = EthereumWrapper.createNewWallet(getApplicationContext());
 
 //        createCacheWallet();
 
-        mWalletFileName = "UTC--2018-04-21T19-27-42.888--12efbee9bbe117eef08190d5e144fd4d168421a5.json";
+//        mWalletFileName = "UTC--2018-04-21T19-27-42.888--12efbee9bbe117eef08190d5e144fd4d168421a5.json";
     }
 
     /**
-     * Fetches the ETH address of the current wallet, using the {@link Web3jwrapper} class.
+     * Fetches the ETH address of the current wallet, using the {@link EthereumWrapper} class.
      *
      * @return kETH address formatted as string (and prefixed with '0x'.
      */
     private String getWalletAddress() {
-        return Web3jwrapper.getWalletAddress(mWalletFileName, getApplicationContext());
+        return EthereumWrapper.getWalletAddress(mWalletFileName, getApplicationContext());
     }
 
     /**
-     * Updates eth balance of the current address, using the {@link Web3jwrapper} class.
-     *
+     * Updates eth balance of the current address, using the {@link EthereumWrapper} class.
+     * <p>
      * Runs on a new thread, to avoid blocking UI.
      */
     private void updateEthBalance() {
@@ -141,7 +180,7 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
             @Override
             public void run() {
 
-                BigInteger bal = Web3jwrapper.getAddressBalance(getWalletAddress());
+                BigInteger bal = EthereumWrapper.getAddressBalance(getWalletAddress());
 
                 FragmentUpdateListener pusher = (FragmentUpdateListener) getFragmentManager()
                         .findFragmentByTag(Constants.DEPLOY_FRAGMENT_TAG);
@@ -159,18 +198,20 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
     }
 
     /**
-     * Deploys new contract using {@link Web3jwrapper} class.
-     *
+     * Deploys new contract using {@link EthereumWrapper} class.
+     * <p>
      * Since network communication is needed, the contract is deployed on a new separate thread, so
      * that UI is not blocked.
-     *
+     * <p>
      * UI update needs to be carried back on the UI thread.
      */
     private void deployContract() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                setmTransactionHash(Web3jwrapper.deployContract(getApplicationContext(), mWalletFileName, mTradeDeal));
+                setmTransactionHash(EthereumWrapper.deployContract(getApplicationContext(), mWalletFileName, mTradeDeal));
+
+                FirebaseWrapper.setOfferStatus(mExistingOffer, Constants.DATA_STATUS_ACCEPTED, getmTransactionHash(), mTradeDeal.getDestinationBtcAddress());
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -179,7 +220,11 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
                                 .findFragmentByTag(Constants.SENT_FRAGMENT_TAG);
 
                         Bundle args = new Bundle();
-                        args.putString(Constants.TRANSACTION_HASH, getmTransactionHash());
+                        if (getmTransactionHash() == null){
+                            args.putString(Constants.TRANSACTION_HASH, "There was an error");
+                        } else {
+                            args.putString(Constants.TRANSACTION_HASH, getmTransactionHash());
+                        }
 
                         if (pusher != null) {
                             pusher.pushUpdate(args);
@@ -190,6 +235,15 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
                 });
             }
         }).start();
+    }
+
+    /**
+     * Attaches Value event listener from {@link FirebaseWrapper} class.
+     *
+     * @return ValueEventListener. This is needed to later dis-attach the listener.
+     */
+    public void updateOffers() {
+        FirebaseWrapper.fetchExistingOffers(this);
     }
 
     public TradeDeal getmTradeDeal() {
@@ -204,10 +258,25 @@ public class MainActivity extends Activity implements WalletPick.OnFragmentInter
         return mTransactionHash;
     }
 
+    public void setmNewOffer(BtcOffer mNewOffer) {
+        this.mNewOffer = mNewOffer;
+    }
+
     public void setmTransactionHash(String mTransactionHash) {
         this.mTransactionHash = mTransactionHash;
     }
 
+    public void setmExistingOffer(BtcOffer mExistingOffer) {
+        this.mExistingOffer = mExistingOffer;
+    }
+
+    public void setDestinationBtcAddress(String destinationBtcAddress) {
+        this.destinationBtcAddress = destinationBtcAddress;
+    }
+
+    /**
+     * Interface used to pushed new info to fragments.
+     */
     public interface FragmentUpdateListener {
         void pushUpdate(Bundle args);
     }
